@@ -22,6 +22,7 @@ https://github.com/aspnet
 https://aspnetidentity.codeplex.com/SourceControl/latest#Readme.markdown
 https://www.codeproject.com/Articles/762428/ASP-NET-MVC-and-Identity-Understanding-the-Basics
 http://www.cnblogs.com/jesse2013/p/membership-part3.html#asp.net-identity
+https://www.scientificamerican.com/article/ldquo-stress-hormone-rdquo-cortisol-linked-to-early-toll-on-thinking-ability/?fbclid=IwAR0D45Rg_mM3aFJ5_T0-zQeJkk1P3ErQNOy1PW9qTM1X71HAEUb3cB2l1H8
 
 # Entity Framework
 https://cpratt.co/repository-and-unit-of-work-patterns-with-entity-framework/
@@ -176,11 +177,13 @@ https://machinelearning.apple.com/2017/07/07/GAN.html
 http://www.fast.ai/2017/07/17/num-lin-alg/
 http://ruder.io/deep-learning-nlp-best-practices/
 https://medium.com/@tifa2up/image-classification-using-deep-neural-networks-a-beginner-friendly-approach-using-tensorflow-94b0a090ccd4
+https://dragan.rocks/articles/18/Programmers-Teach-Yourself-Foundations-of-ML-AI-With-These-X-Books
 
 # Java
 http://blog.jevsejev.io/2017/02/19/java-libraries-you-cannot-miss-in-2017/?utm_source=ycombinator
 
 # JavaScript
+https://www.reaktor.com/blog/fear-trust-and-javascript/
 https://risingstars2016.js.org/
 http://www.2ality.com/
 https://trackchanges.postlight.com/modern-javascript-for-ancient-web-developers-58e7cae050f9#.2tpky4xfc
