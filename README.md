@@ -1,3 +1,12 @@
+
+https://80000hours.org/articles/ml-engineering-career-transition-guide/
+https://www.npr.org/sections/health-shots/2018/11/10/666545527/vitamin-d-and-fish-oil-supplements-disappoint-in-long-awaited-study-results
+https://nasa.github.io/openmct/
+https://github.com/nasa/openmct
+https://rainbowhunt.me/?plays
+https://kottke.org/18/11/the-art-institute-of-chicago-has-put-50000-high-res-images-from-their-collection-online
+https://jshandbook.com/
+https://web.dev/
 http://chrysie.pixnet.net/blog/post/117944079-%E5%BE%B7%E5%9C%8Bturk%E5%9C%9F%E5%85%8B%E9%8D%8B%E5%A6%82%E4%BD%95%E9%96%8B%E9%8D%8B%E4%BF%9D%E9%A4%8A%E6%B8%85%E6%BD%94%EF%BC%8B%E9%90%B5%E9%8D%8B%E7%85%8E%E6%9D%B1
 https://www.cs.drexel.edu/~introcs/Fa11/notes/10.1_Cryptography/RSA_Express_EncryptDecrypt.html
 https://hackernoon.com/50-data-structure-and-algorithms-interview-questions-for-programmers-b4b1ac61f5b0
