@@ -1,4 +1,4 @@
-
+https://hackaday.com/2019/03/11/engineering-for-the-long-haul-the-nasa-way/
 https://80000hours.org/articles/ml-engineering-career-transition-guide/
 https://www.npr.org/sections/health-shots/2018/11/10/666545527/vitamin-d-and-fish-oil-supplements-disappoint-in-long-awaited-study-results
 https://nasa.github.io/openmct/
