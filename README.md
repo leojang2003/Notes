@@ -1,3 +1,10 @@
+https://www.ikonate.com/
+https://github.com/RomuloOliveira/commit-messages-guide
+https://hacks.mozilla.org/2019/04/introducing-mozilla-webthings/
+https://resumeskills.us/
+https://github.com/lukego/blog/issues/32
+http://www.antenna-theory.com/
+https://medium.com/the-mission/a-genius-explains-how-to-be-creative-claude-shannons-long-lost-1952-speech-fbbcb2ebe07f
 https://hackaday.com/2019/03/11/engineering-for-the-long-haul-the-nasa-way/
 https://80000hours.org/articles/ml-engineering-career-transition-guide/
 https://www.npr.org/sections/health-shots/2018/11/10/666545527/vitamin-d-and-fish-oil-supplements-disappoint-in-long-awaited-study-results
