@@ -1,3 +1,10 @@
+
+https://www.nytimes.com/2019/05/09/opinion/sunday/chris-hughes-facebook-zuckerberg.html
+https://juretriglav.si/open-source-collaborative-text-editors/
+https://cssfx.dev/
+https://www.twilio.com/blog/a-http-headers-for-the-responsible-developer
+https://github.com/kkuchta/css-only-chat
+https://developers.googleblog.com/2019/05/Flutter-io19.html
 https://www.ikonate.com/
 https://github.com/RomuloOliveira/commit-messages-guide
 https://hacks.mozilla.org/2019/04/introducing-mozilla-webthings/
