@@ -1,3 +1,6 @@
+https://bair.berkeley.edu/blog/2019/05/28/end-to-end/
+http://stevehanov.ca/blog/?id=132
+https://zzz.dog/
 https://courses.csail.mit.edu/6.851/fall17/ 
 https://www.nytimes.com/2019/05/09/opinion/sunday/chris-hughes-facebook-zuckerberg.html
 https://juretriglav.si/open-source-collaborative-text-editors/
