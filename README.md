@@ -1,3 +1,4 @@
+https://every-layout.dev/
 https://bair.berkeley.edu/blog/2019/05/28/end-to-end/
 http://stevehanov.ca/blog/?id=132
 https://zzz.dog/
