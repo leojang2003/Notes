@@ -1,0 +1,80 @@
+	交易統計表(Table：BIL_FISC_PP_Statistics)
+SN	欄位名稱	欄位類別	Data Source	欄位說明
+1	列印日期			格式YYYY/MM/DD
+2	資料日期		DATA_DATE	格式YYYY/MM/DD
+3	序號			
+4	特店代號		MER_NO	
+5	特店名稱			從特店主檔取得
+6	端末機號		TERM_ID	
+7	交易別		TX_TYPE	
+8	手續費級距		FEE_ID	
+9	筆數		TX_ITEM	
+10	金額		TX_AMT	
+11	手續費		TX_COMM	
+	下方合計欄位			
+12	筆數			統計TX_ITEM(購貨+退貨)
+13	金額			統計TX_AMT(購貨-退貨)
+14	手續費			統計TX_COMM(購貨-退貨)
+
+CREATE TABLE BIL_FISC_PP_Statistics
+(
+SEQ	int identity(1,1) NOT NULL,
+MER_NO	varchar(20),
+TERM_ID	varchar(8),
+TX_TYPE	varchar(2),
+FEE_ID	varchar(2),
+TX_ITEM	decimal(8,0),
+TX_AMT	decimal(12,0),
+TX_COMM	decimal(12,2),
+DATA_DATE	date
+)
+
+CREATE TABLE SET_FISC_PP_FEE
+(
+	MER_NO		Varchar(15),
+	FEE_CALC_TYPE	Varchar(10),
+	Level_ID	Varchar(1),
+	Level_DESC	Varchar(30),
+	Level_S_AMT	Decimal(12,0),
+	Level_E_AMT	Decimal(12,0),
+	MER_FEE		Decimal(9,4),
+	ACQ_Service_FEE	Decimal(9,4),
+	FISC_PP_FEE	Decimal(9,4),
+	INT_FEE		Decimal(9,4)
+)
+
+INSERT INTO SET_FISC_PP_FEE VALUES('1','AMT','01','<=500元',1,500,2,1,0.6,0.4)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('1','AMT','02','501~1,000元',501,1000,3,1.4,1,0.6)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('1','AMT','03','1,001~10,000元',1001,10000,10,4.6,3.2,2.2)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('1','AMT','04','10,001~50,000元',10001,50000,15,6.9,4.8,3.3)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('1','AMT','05','50,001~100,000元',50001,100000,30,13.8,9.6,6.6)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('1','AMT','06','>100,000元',100001,9999999999,50,23,16,11)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('2','AMT','01','<=500元',1,500,2,1,0.6,0.4)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('2','AMT','02','501~1,000元',501,1000,3,1.4,1,0.6)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('2','AMT','03','1,001~10,000元',1001,10000,9,3.6,3.2,2.2)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('2','AMT','04','10,001~50,000元',10001,50000,11,2.9,4.8,3.3)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('2','AMT','05','50,001~100,000元',50001,100000,22,5.8,9.6,6.6)
+
+
+INSERT INTO SET_FISC_PP_FEE VALUES('2','AMT','06','>100,000元',100001,9999999999,40,13,16,11)
+
