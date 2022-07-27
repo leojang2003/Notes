@@ -1,0 +1,219 @@
+- 傳入參數
+
+script名稱之後的其他參數，將轉換為list的strings指派給sys module的argv變數
+
+舉例，呼叫 py sample.py p1 p2
+
+檔案內容
+import sys
+print(argv[0]); // sample.py
+print(argv[1]); // p1
+print(argv[1]); // p2
+
+- Python 原始檔預設以 UTF-8 編碼
+- 變更編碼在檔案開頭新增
+# -*- coding: cp1252 -*-
+
+除法
+17 / 3  # 回傳浮點數
+
+除法
+17 // 3  # 不回傳浮點數
+
+次方
+5 ** 2 # 25
+2 ** 7  # 128
+
+等號
+>>>
+>>> width = 20
+>>> height = 5 * 9
+>>> width * height
+900
+
+In interactive mode, the last printed expression is assigned to the variable _
+>>>
+>>> tax = 12.5 / 100
+>>> price = 100.50
+>>> price * tax
+12.5625
+>>> price + _
+113.0625
+>>> round(_, 2)
+113.06
+
+_是read-only
+
+其他數字 Deciaml/Fraction
+
+字串
+
+
+單引號，雙引號皆可表示字串
+>>> 'doesn\'t'  # "doesn't"
+>>> "doesn't"   # "doesn't"
+>>> '"Yes," they said.'   # '"Yes," they said.'
+>>> "\"Yes,\" they said." # '"Yes," they said.' escaped
+>>> '"Isn\'t," they said.'#
+
+print()方法會忽略兩側closing quote並印出escaped/special字元
+>>> '"Isn\'t," they said.' 		# '"Isn\'t," they said.'
+>>> print('"Isn\'t," they said.')	# "Isn't," they said.
+>>> s = 'First line.\nSecond line.'  # 我們想要 \n 表示換行
+>>> s  # 'First line.\nSecond line.' 沒有 print(), \n 會在 output
+
+>>> print(s)  
+First line.
+Second line. # 會換行
+
+
+使用r來表示raw string
+>>> print('C:\some\name')  # \n視為換行
+C:\some
+ame
+>>> print(r'C:\some\name')  # 字串前加r
+C:\some\name
+
+多行的字串
+用"""...""" 或是 '''...'''
+
+字串concate用+，重複用*
+>>> 3 * 'un' + 'ium' #'unununium'
+
+字串間的空白會自動連接
+'Py' 'thon' # 'Python'
+可以用來長句子換行
+僅適用於string literals，變數不行，有變數的concate只能用+
+
+Slicing :
+沒有char型別，python只有長度1的字串
+string可以indexed
+
+>>> word = 'Python'
+>>> word[0]   # 'P' 第1個
+>>> word[-1]  # 'n' 倒數第1個
+>>> word[-2]  # 'o' 倒數第2個
+>>> word[-6]  # 'P' 倒數第6個
+
+負數index從-1開始算起
+
+>>> word[0:2]  # 'Py' 0 (包含) 到 2 (不包含)
+>>> word[2:5]  # 'tho' 2 (包含) 到 5 (不包含)
+>>> word[:2]   # 'Py' 開始到 position 2 (不包含)
+>>> word[4:]   # 'on' 4 (包含) 到結束
+>>> word[-2:]  # 'on' -1 (包含) 到結束
+
+Slicing可以處理out of range
+>>> word[4:42] # 'on'
+>>> word[42:]  # '' 
+
+字串也是immutable
+>>> word[0] = 'J' # 錯誤
+
+字串長度 len()
+
+*** Lists ***
+
+squares = [1, 4, 9, 16, 25] // 用中括號，逗號隔開
+>>> squares[0]  # 1
+>>> squares[-1] # 25
+>>> squares[-3:]  # 回傳新的 list [9, 16, 25]
+slicing 會回傳新的 list
+
+>>> squares[:] # 回傳一個全新一樣的list [1, 4, 9, 16, 25]
+
+list也可以concate
+>>> squares + [36, 49, 64, 81, 100] # 回傳 [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+
+list是mutable的，與string不同
+>>> cubes = [1, 8, 27, 65, 125]  
+>>> cubes[3] = 64  
+>>> cubes # [1, 8, 27, 64, 125] 成功置換
+
+>>> cubes.append(216)  # 加到尾
+>>> cubes.append(7 ** 3)  # 加到尾
+>>> cubes # [1, 8, 27, 64, 125, 216, 343]
+
+置換list中的元素
+>>> letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> letters[2:5] = ['C', 'D', 'E']
+>>> letters # ['a', 'b', 'C', 'D', 'E', 'f', 'g'] 中間的物件被換了
+
+移除list中的元素
+>>> letters[2:5] = []
+>>> letters # ['a', 'b', 'f', 'g'] 中間的物件被移除了
+
+清空list
+letters[:] = []
+
+list長度len()
+>>> len(letters) # 4
+
+list裡包含list
+>>> a = ['a', 'b', 'c']
+>>> n = [1, 2, 3]
+>>> x = [a, n]
+>>> x # [['a', 'b', 'c'], [1, 2, 3]]
+>>> x[0] # ['a', 'b', 'c']
+>>> x[0][1] #b
+
+多重assignment
+>>> a, b = 0, 1
+
+右側的expression在assignment前會先被執行。
+>>> a, b = b, a+b
+
+右側的表達式從左到右計算。
+... a, b = 0, 1
+>>> while a < 10:
+...		a, b = b, a+b # a+b 會先執行
+...     print('a=',a , 'b=', b);
+...     
+a= 1 b= 1 # print 的結果之間會自動有空白
+a= 1 b= 2
+a= 2 b= 3
+a= 3 b= 5
+a= 5 b= 8
+a= 8 b= 13
+a= 13 b= 21
+
+while迴圈內容>0為True，0為False
+任何長度>0的物件在while迴圈內都是True，
+
+print() 的結果之間會自動有空白
+
+單引號字串，不用escape雙引號
+雙引號字串，不用escape單引號
+
+>>> x = int(input("Please enter an integer: "))
+Please enter an integer: 42
+>>> if x < 0:
+...     x = 0
+...     print('Negative changed to zero')
+... elif x == 0:
+...     print('Zero')
+... else:
+...     print('More')
+
+另外 if elif 可用來取代其他語言的 switch
+
+for迴圈
+>>> words = ['cat', 'window', 'defenestrate']
+>>> for w in words:
+...     print(w, len(w))
+
+iterate collection時同時要修改collection容易出錯，通常的做法是複製一個新的collection
+
+# Create a sample collection
+users = {'Hans': 'active', 'Éléonore': 'inactive', '景太郎': 'active'}
+
+# Strategy:  Iterate over a copy
+for user, status in users.copy().items():
+    if status == 'inactive':
+        del users[user]
+
+# Strategy:  Create a new collection
+active_users = {}
+for user, status in users.items():
+    if status == 'active':
+        active_users[user] = status
