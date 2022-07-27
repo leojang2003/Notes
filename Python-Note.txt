@@ -204,8 +204,54 @@ for迴圈
 
 iterate collection時同時要修改collection容易出錯，通常的做法是複製一個新的collection
 
-# Create a sample collection
+# 建立一個 sample collection (此處使用的是dict)
 users = {'Hans': 'active', 'Éléonore': 'inactive', '景太郎': 'active'}
+print(type(users)); # <class 'dict'>
+
+另一種建立dict的方式
+users = dict()
+
+users['a'] = 'A'
+users['a'] = 'B' # 取代
+print(users['a'] )  # B
+
+users['b'] # 錯誤
+users.get('b') # 無資料時回傳 None <class 'NoneType'>
+users.get('b', 'tbd') # 無資料時回傳自訂字串
+users.get('b', 20) # 無資料時回傳也可自訂型別
+
+一次更新多筆可用update()
+new_users = {'John': 'active', 'Snow': 'inactive', 'Rick0': 'active'}
+users.update(new_users) #將new_users加入users
+
+刪除
+del users[key]
+
+刪除後取得value
+tmp = users.pop(key)
+
+取得所有keys
+users.keys()
+dict_keys(['Hans', 'Éléonore', '景太郎', 'John', 'Snow', 'Rick0']) #<class 'dict_keys'>
+
+取得所有values
+users.values()
+dict_values(['active', 'inactive', 'active', 'active', 'inactive', 'active']) #<class 'dict_values'>
+
+取得所有key/value
+users.items()
+
+是否有KEY
+'key' in users # 回傳True或False
+
+==可判斷兩個dict是否含有相同的key/value組合，順序不重要
+ 
+is運算子可判斷是否為相同的物件
+print(users is new_users) # 回傳False
+
+
+dict類似HashMap，key值唯一
+取得value使用users[key]
 
 # Strategy:  Iterate over a copy
 for user, status in users.copy().items():
@@ -217,3 +263,107 @@ active_users = {}
 for user, status in users.items():
     if status == 'active':
         active_users[user] = status
+
+range() 方法
+>>> for i in range(5): # 0-4
+...     print(i)  # 0 1 2 3 4 5
+
+>>> list(range(5, 10)) # 可以設定起始數字 [5, 6, 7, 8, 9] <class 'list'>
+>>> list(range(0, 10, 3)) # 可以設定間隔 [0, 3, 6, 9]
+>>> list(range(-10, -100, -30)) #[-10, -40, -70]
+
+巡迴list的方法
+>>> a = ['Mary', 'had', 'a', 'little', 'lamb']
+>>> for i in range(len(a)):
+...     print(i, a[i])
+
+range(10) 回傳一個 range(0, 10) <class 'range'>
+
+>>> sum(range(4))  # 0 + 1 + 2 + 3
+6
+
+這個else是針對內層的for迴圈，當for迴圈無break時則會執行else
+>>> for n in range(2, 10):
+...     for x in range(2, n):
+...         if n % x == 0:
+...             print(n, 'equals', x, '*', n//x)
+...             break
+...     else:
+...         # loop fell through without finding a factor
+...         print(n, 'is a prime number')
+
+pass 
+本身沒用途，算是一個placeholder，常用於建立一個空的類別
+>>> class MyEmptyClass:
+...     pass
+
+或是用於方法當作placeholder
+>>> def initlog(*args):
+...     pass   # Remember to implement this!
+
+match類似switch，_是wildcard
+def http_error(status):
+    match status:
+        case 400:
+            return "Bad request"
+        case 404:
+            return "Not found"
+        case 418:
+            return "I'm a teapot"
+        case _:
+            return "Something's wrong with the internet"
+
+也可以使用|
+case 401 | 403 | 404:
+    return "Not allowed"
+
+def point(point):
+    match point:
+        case (0, 0):
+            print("Origin")
+        case (0, y): # point 的
+            print(f"Y={y}") 
+        case (x, 0):
+            print(f"X={x}")
+        case (x, y): # 如同 unpacking assignment (x, y) = point.
+            print(f"X={x}, Y={y}")
+        case _:
+            raise ValueError("Not a point")
+
+這裡的point是一個Tuple(不能修改的list)
+print(type((0,0))) # <class 'tuple'>
+
+class Point:
+    x: int
+    y: int
+
+def where_is(point):
+    match point:
+        case Point(x=0, y=0):
+            print("Origin")
+        case Point(x=0, y=y):
+            print(f"Y={y}")
+        case Point(x=x, y=0):
+            print(f"X={x}")
+        case Point():
+            print("Somewhere else")
+        case _:
+            print("Not a point")
+
+z = Point()
+z.x = 0
+z.y = 0
+where_is(z); # Origin
+
+structural pattern matching
+
+food = "apples"
+match food:
+
+    case "apples"
+        print("found apple");
+
+https://medium.com/short-bits/python-3-10-match-a-new-way-to-find-patterns-8452d1460407
+https://peps.python.org/pep-0635/
+https://benhoyt.com/cv/#about-me
+https://www.geeksforgeeks.org/python-star-or-asterisk-operator/
