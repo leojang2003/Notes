@@ -355,14 +355,209 @@ z.x = 0
 z.y = 0
 where_is(z); # Origin
 
-structural pattern matching
+from dataclasses import dataclass
 
-food = "apples"
+command = input("what are you doing next")
+
+# [action, action2] = command.split() # 如果輸多於2個，unpack會失敗
+
+match command.split():
+	case [action]: # 只有輸入1個字
+		print('action only')
+	case [action, obj]: # 輸入2個字
+		print('action and obj')
+
+match command.split():
+    case ["quit"]:
+        print("Goodbye!")        
+    case ["look", obj] if obj == 'left': 
+        print("look left!")        
+    case ["get", obj]: # get 跟 go 的變數名稱可以設成不同
+        print("get!") 
+    case ["go", direction]: # get 跟 go 的變數名稱可以設成不同
+        print("go!")
+
+		
+match command.split():
+    case ["drop", *objects]:
+        print(type(objects)) #<class 'list'>
+        for obj in objects:
+            print(obj)
+    case _:
+        print('wildcard')
+# 如同 sequence unpacking，一個pattern不可有超過一個*
+
+# Python 只允許單獨wildcard的pattern放在最後
+
+doom = ["first", ("l", "r"), "a", "b", "c"]
+
+match doom:
+    case ["first", (left, right), *rest]:
+        print(type(rest)) 
+        for obj in rest:
+            print(obj) # a b c
+        print(left, right) # l r
+    case _:
+        print('wildcard')
+		
+match command.split():    
+    case ["north"] | ["go", "north"]:
+        print("north")
+    case ["get", obj] | ["pick", "up", obj] | ["pick", obj, "up"]:
+        print('56')
+		
+match command.split():    
+    case ["north"] | ["go", "north"]:
+        print("north")
+    #下面會錯誤，alternative patterns bind different names
+    #case ["get", obj, obj2] | ["pick", "up", obj] | ["pick", obj, "up"]:
+        #print('50')
+# Or pattern 下同一個pattern的alternatives必須綁定一樣的變數
+# [1, x] | [2, y] 不行
+# [1, x] | [2, x] 可以
+
+# 將OR的結果存入direction
+match command.split():
+    case ["go", ("north" | "south" | "east" | "west") as direction]:
+        print(direction)
+		
+match command.split():
+    case ["go", "north"] | ["go", "south"] | ["go", "east"] | ["go", "west"] as direction:
+        print(direction)
+
+class Room:
+	exits:list
+
+current_room = Room()
+current_room.exits = ["north","south"]
+		
+match command.split():
+    case ["go", direction] if direction in current_room.exits:
+        print(direction)
+    case ["go", _]:
+        print("Sorry, you can't go that way")
+
+class Person:	
+	fname:str
+	lname:str
+	age:int
+	
+john = Person()
+john.fname = 'John'
+john.lname = 'Wicks'
+
+match john:	
+	# match named attribute 如下
+	case Person(lname='Wicks', fname='John'): # 順序交換，可以match
+		print('1st John')
+	case Person('John', 'Wicks'): # Person accepts 0 positional sub-patterns (2 given)
+		print('1st John')
+	case Person(fname='John', lname='Wicks'): # 可以match
+		print('2nd John')
+		
+# 上面的錯誤需要加入 __match_args__ = ("position", "button")
+
+
+
+class Person:	
+	__match_args__ = ("fname", "lname") # 設定
+	fname:str
+	lname:str
+	age:int
+	
+john = Person()
+john.fname = 'John'
+john.lname = 'Wicks'
+
+match john:
+	# 不需要match named attribute，因為設定了__match_args__
+	case Person('John', 'Wicks'): # 可以match了
+		print('1st John')
+	case Person(lname='Wicks', fname='John'): # 順序交換，可以match
+		print('1st John')
+	case Person(fname='John', lname='Wicks'): # 可以match
+		print('2nd John')
+
+#定義dataclass的話也定義positional arguments，'fname', 'lname', and 'age'
+#這三個arguments是有順序的
+
+
+
+@dataclass
+class Person:	
+	fname:str
+	lname:str
+	age:int
+	
+john = Person('John','Wicks',20) # 初始化 dataclass
+
+match john:	
+	case Person('John', 'Wicks'): # 可以match
+		print('1st John')
+	case Person(lname='Wicks', fname='John'): 
+		print('1st John')	
+	case Person(fname='John', lname='Wicks'): 
+		print('2nd John')
+
+print('-----------------------')
+		
+actions = [{"text": "The shop keeper says 'Ah! We have Camembert, yes sir'", "color": "blue", "name":"Doc Rivers","age":65,"team":"LA Clippers"}
+,{"sleep": 3},{"sound": "filename.ogg", "format": "ogg"}]
+
+# k-word-args kwargs 這裡的**rest
+
+for action in actions:
+    match action:
+        case {"text": message, "color": c, **rest}:
+            print(type(rest)) #<class 'dict'>
+            for key in rest:
+                print(key, rest[key])
+            print('color=',c)
+            print('message=',message)
+        case {"sleep": duration}:
+            print('sleep=',c)
+        case {"sound": url, "format": "ogg"}:
+            print('url=',url)
+        case {"sound": _, "format": _}:
+            warning("Unsupported audio format")
+
+# {"text": str() as message, "color": str() as c}
+# 確保text和color都是str，上述寫法也可以縮減成如下
+# {"text": str(message), "color": str(c)}
+for action in actions:
+    match action:
+        case {"text": str(message), "color": str(c)}:
+            print('do something 1 ')
+            print('do something 2')
+        case {"sleep": float(duration)}:
+            print('do something 3')
+        case {"sound": str(url), "format": "ogg"}:
+            print('do something 4')
+        case {"sound": _, "format": _}:
+            warning("Unsupported audio format")
+
+# Sequence pattern
+# [x, y, *rest] and (x, y, *rest) 都用於 unpacking assignments. * 號後也可以是 _，像 (x, y, *_)，如此只會bind兩個變數，其他不會
+
+# Mapping pattern
+# {"bandwidth": b, "latency": l} 取得 "bandwidth" 與 "latency" 的值從dict. 不像 sequence patterns, 其他的KEY被忽略了.使用 **rest 可以保留其他的KEY. (但是 **_ 是不被允許的)
+			
+food = ['a','b','c','d','k']
 match food:
+	# case ['a','b','c', _]:
+		# print("wild")
+	case ['a','b','d', *other]:
+		print(f"{','.join(other)}'")
+	case ['a', *other, 'e']:
+		print(f"{','.join(other)}'")
+	case['a', _] if "c" in food:
+		print('in')
+	case {"a":"", **kwargs}:
+		print('desert')
 
-    case "apples"
-        print("found apple");
 
+
+https://25349023.github.io/articles/2021-03/py-structural-pattern-matching/
 https://medium.com/short-bits/python-3-10-match-a-new-way-to-find-patterns-8452d1460407
 https://peps.python.org/pep-0635/
 https://benhoyt.com/cv/#about-me
