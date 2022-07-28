@@ -301,38 +301,43 @@ pass
 >>> def initlog(*args):
 ...     pass   # Remember to implement this!
 
-match類似switch，_是wildcard
+# match有以下pattern
+#
+# Literal Patterns
+# Wildcard Patterns
+# OR Pattern
+# AS Pattern
+#
 def http_error(status):
     match status:
+        # literal pattern
         case 400:
             return "Bad request"
-        case 404:
-            return "Not found"
-        case 418:
-            return "I'm a teapot"
+        # OR pattern / AS Pattern
+        case 401 | 403 | 404 as errorCode: 
+            return "Not allowed"
+        # wildcard pattern 
         case _:
             return "Something's wrong with the internet"
 
-也可以使用|
-case 401 | 403 | 404:
-    return "Not allowed"
+# Wildcard Patterns 中的 _ 可以 match 所有物件，規定只能放最後
+# 因為 OR Patterns 無法分辨內容，所以用 as 將值 bind 到變數
 
+# 
+# Capture Patterns
+#
 def point(point):
-    match point:
+    match point: # 這裡定義的 point 是 tuple(aka 不能修改的list)
         case (0, 0):
-            print("Origin")
-        case (0, y): # point 的
-            print(f"Y={y}") 
+            print("Origin")        
         case (x, 0):
-            print(f"X={x}")
-        case (x, y): # 如同 unpacking assignment (x, y) = point.
+            print(f"X={x}") # 會做 bind
+        case (x, y): # 如同 Unpacking Assignment (x, y) = point.
             print(f"X={x}, Y={y}")
-        case _:
-            raise ValueError("Not a point")
 
-這裡的point是一個Tuple(不能修改的list)
-print(type((0,0))) # <class 'tuple'>
-
+# 
+# Class Patterns
+#
 class Point:
     x: int
     y: int
@@ -350,10 +355,10 @@ def where_is(point):
         case _:
             print("Not a point")
 
-z = Point()
-z.x = 0
-z.y = 0
-where_is(z); # Origin
+# 自訂的 class 需在 pattern 中指定屬性名稱
+# 有兩個方法可以不用指定屬性名稱
+# 1. 使用 dataclass：這可以讓 class 實例的屬性擁有'順序'(positional argument)，無需在 pattern 中指定屬性名稱
+# 2. 定義__match_args__
 
 from dataclasses import dataclass
 
@@ -370,7 +375,7 @@ match command.split():
 match command.split():
     case ["quit"]:
         print("Goodbye!")        
-    case ["look", obj] if obj == 'left': 
+    case ["look", obj] if obj == 'left': # uf 即所謂的 Guard
         print("look left!")        
     case ["get", obj]: # get 跟 go 的變數名稱可以設成不同
         print("get!") 
@@ -387,7 +392,6 @@ match command.split():
         print('wildcard')
 # 如同 sequence unpacking，一個pattern不可有超過一個*
 
-# Python 只允許單獨wildcard的pattern放在最後
 
 doom = ["first", ("l", "r"), "a", "b", "c"]
 
@@ -457,8 +461,6 @@ match john:
 		
 # 上面的錯誤需要加入 __match_args__ = ("position", "button")
 
-
-
 class Person:	
 	__match_args__ = ("fname", "lname") # 設定
 	fname:str
@@ -481,8 +483,6 @@ match john:
 #定義dataclass的話也定義positional arguments，'fname', 'lname', and 'age'
 #這三個arguments是有順序的
 
-
-
 @dataclass
 class Person:	
 	fname:str
@@ -498,13 +498,16 @@ match john:
 		print('1st John')	
 	case Person(fname='John', lname='Wicks'): 
 		print('2nd John')
-
-print('-----------------------')
-		
+#
+# Mapping pattern
+#
+# {"bandwidth": b, "latency": l} 取得 "bandwidth" 與 "latency" 的值從dict. 
+# 不像 sequence patterns, 其他的KEY被忽略了.使用 **rest 可以保留其他的KEY. (但是 **_ 是不被允許的)
+	
 actions = [{"text": "The shop keeper says 'Ah! We have Camembert, yes sir'", "color": "blue", "name":"Doc Rivers","age":65,"team":"LA Clippers"}
 ,{"sleep": 3},{"sound": "filename.ogg", "format": "ogg"}]
 
-# k-word-args kwargs 這裡的**rest
+# 這裡的**rest就是一個 kwargs (k-word-args)
 
 for action in actions:
     match action:
@@ -521,13 +524,13 @@ for action in actions:
         case {"sound": _, "format": _}:
             warning("Unsupported audio format")
 
-# {"text": str() as message, "color": str() as c}
-# 確保text和color都是str，上述寫法也可以縮減成如下
-# {"text": str(message), "color": str(c)}
+#
+# 比對內建型別 Matching builtin classes
+#
+
 for action in actions:
     match action:
-        case {"text": str(message), "color": str(c)}:
-            print('do something 1 ')
+        case {"text": str(message), "color": str(c)}:            
             print('do something 2')
         case {"sleep": float(duration)}:
             print('do something 3')
@@ -535,13 +538,16 @@ for action in actions:
             print('do something 4')
         case {"sound": _, "format": _}:
             warning("Unsupported audio format")
+# {"text": str() as message, "color": str() as c}
+# 確保text和color都是str，上述寫法也可以縮減成如下
+# {"text": str(message), "color": str(c)}
 
-# Sequence pattern
+#
+# Sequence Pattern
+#
 # [x, y, *rest] and (x, y, *rest) 都用於 unpacking assignments. * 號後也可以是 _，像 (x, y, *_)，如此只會bind兩個變數，其他不會
 
-# Mapping pattern
-# {"bandwidth": b, "latency": l} 取得 "bandwidth" 與 "latency" 的值從dict. 不像 sequence patterns, 其他的KEY被忽略了.使用 **rest 可以保留其他的KEY. (但是 **_ 是不被允許的)
-			
+		
 food = ['a','b','c','d','k']
 match food:
 	# case ['a','b','c', _]:
@@ -562,3 +568,123 @@ https://medium.com/short-bits/python-3-10-match-a-new-way-to-find-patterns-8452d
 https://peps.python.org/pep-0635/
 https://benhoyt.com/cv/#about-me
 https://www.geeksforgeeks.org/python-star-or-asterisk-operator/
+
+#
+# Python 指派值的方式說明 call-by-assignment
+#
+# Assigning to a variable name in Python makes the name bind to a different value 
+# from what it currently was bound to (if indeed it was already bound), 
+# rather than changing the value it currently binds to:
+
+# 將一個值指派給一個變數名稱，表示該名稱會bind到一個不同的值(value)
+# 而不是原來bind的值，指派這個動作並非變更原先bind的值
+
+a = 7   # Create 7, bind a to it.
+        #     a -> 7
+
+b = a   # Bind b to the thing a is currently bound to.
+        #     a
+        #      \
+        #       *-> 7
+        #      /
+        #     b
+
+a = 42  # Create 42, bind a to it, b still bound to 7.
+        #     a -> 42
+        #     b -> 7
+
+
+# Where the underlying data is immutable (cannot be changed), that usually makes Python look as if it's behaving identically 
+# to the way other languages do (C and C++ come to mind). That's because the 7 (the actual object that the names are bound to) cannot be changed.
+
+# But, for mutable data (same as using pointers in C or references in C++), 
+# people can sometimes be surprised because they don't realise that the value behind it is shared:
+
+a = [1,2,3]     # a -> [1,2,3]
+print(a) # [1, 2, 3]
+
+b = a           # a,b -> [1,2,3]
+print(b) # [1, 2, 3]
+
+a[1] = 42       # a,b -> [1,42,3]
+print(a) 
+print(b)
+# 都是 [1, 42, 3]
+
+# You need to understand that a[1] = 42 is different to a = [1, 42, 3]. The latter is an assignment, 
+# which would result in a being re-bound to a different object, and therefore independent of b.
+
+# 重點 : 如果用 = 指派新的值到變數名稱，像 a = [1,42,3]，b 還是會指向原本的 [1,2,3]
+
+def set_list(list):
+    list = ["A", "B", "C"]
+    return list
+ 
+def add(list):
+    list.append("D")
+    return list
+ 
+my_list = ["E"]
+ 
+print(set_list(my_list))
+ 
+print(add(my_list))
+
+
+# The former is simply changing the mutable data that both a and b are bound to, which is why it affects both.
+
+
+# 另一篇說法
+
+If you pass a mutable object into a method, the method gets a reference to that same object and you can mutate it to your heart's delight, but if you rebind the reference in the method, the outer scope will know nothing about it, and after you're done, the outer reference will still point at the original object.
+
+If you pass an immutable object to a method, you still can't rebind the outer reference, and you can't even mutate the object.
+
+例如 def foo(bar): 這個 function 的參數傳遞，其實是在 foo 的 local namespace 裡幫傳進去的物件綁定了一個叫做 bar 的名字（所謂的 assignment）；如果你在 foo 裡 re-assign 了一個新的物件給 bar，實際上是把 bar 這個名字綁定到那個新的物件。
+
+mutable objects: list, dict, set 的行為同 call-by-reference
+immutable objects: boolean, int, float, long, str, unicode, tuple 的行為同 call-by-value
+不過如果你把一個 mutable 物件放進 immutable 物件裡，例如把 list 放進 tuple 裡，則修改了 list 之後，那個 tuple 裡的 list 也是會被修改。
+
+a_list = [1, 2, 3]
+a_tuple = (a_list, 'a', 'b', 'c')
+a_list.append(4)
+Assignment is the binding of a name to an object: name = 'Molly'.
+Assignment between names doesn't create a new object, both names are simply bound to the same object: nickname = name.
+
+name = 'Mollie'
+name = 'Vinta'
+所謂的 assign 這個動作，其實是幫 'Mollie' 這個字串取一個名字叫做 name，所以如果你又加上一句 name = 'Vinta'，實際上是建立了一個新的物件（字串 'Vinta'），再把這個新字串綁定到 name 這個名字。
+
+# if bar refers to a mutable object
+def foo(bar):
+    bar.append('new value')
+    print(bar)
+    # output: ['old value', 'new value']
+
+answer_list = ['old value', ]
+foo(answer_list)
+print(answer_list)
+# output: ['old value', 'new value']
+
+# if bar refers to an immutable object
+def foo(bar):
+    bar = 'new value'
+    print(bar)
+    # output: 'new value'
+
+answer_list = 'old value'
+foo(answer_list)
+print(answer_list)
+# output: 'old value'
+
+# if bar refers to a mutable object and re-assign it in foo
+def foo(bar):
+    bar = ['new value', ]
+    print(bar)
+    # output: ['new value', ]
+
+answer_list = ['old value', ]
+foo(answer_list)
+print(answer_list)
+# output: ['old value', ]
