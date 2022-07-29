@@ -907,3 +907,39 @@ pairs = [(1, 'one'), (2, 'two'), (3, 'three'), (4, 'four')]
 pairs.sort(key=lambda pair: pair[1])
 pairs
 [(4, 'four'), (1, 'one'), (3, 'three'), (2, 'two')]
+
+#
+# Documentation Strings
+#
+def my_function():
+    """Do nothing, but document it.
+
+    No, really, it doesn't do anything.
+    """
+    pass
+print(my_function.__doc__)
+# 第一話開頭大寫，.結束，紀錄Summary
+# 多行的話，第二行空白
+
+#
+# Function Annotation
+#
+>>> def f(ham: str, eggs: str = 'eggs') -> str:
+...     print("Annotations:", f.__annotations__)
+...     print("Arguments:", ham, eggs)
+...     return ham + ' and ' + eggs
+...
+>>> f('spam')
+# Return annotations 使用 -> 表示回傳型態
+# Parameter annotations 在參數名稱用冒號定義, 後面接著型態
+
+#
+# Coding Style
+#
+
+# 用4個空白，不用 tab
+# 方法類別間用空白行隔開
+# 使用 docstring
+# 運算子兩側要空白，逗號後要空白，
+# UpperCamelCase 類別命名方式
+# lowercase_with_underscores 為 function/method 的命名方式
