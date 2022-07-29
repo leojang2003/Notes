@@ -507,7 +507,7 @@ match john:
 actions = [{"text": "The shop keeper says 'Ah! We have Camembert, yes sir'", "color": "blue", "name":"Doc Rivers","age":65,"team":"LA Clippers"}
 ,{"sleep": 3},{"sound": "filename.ogg", "format": "ogg"}]
 
-# 這裡的**rest就是一個 kwargs (k-word-args)
+# 這裡的**rest就是一個 kwargs (keyword-args)
 
 for action in actions:
     match action:
@@ -546,6 +546,23 @@ for action in actions:
 # Sequence Pattern
 #
 # [x, y, *rest] and (x, y, *rest) 都用於 unpacking assignments. * 號後也可以是 _，像 (x, y, *_)，如此只會bind兩個變數，其他不會
+
+
+from enum import Enum
+class Color(Enum):
+    RED = 'red'
+    GREEN = 'green'
+    BLUE = 'blue'
+
+color = Color(input("Enter your choice of 'red', 'blue' or 'green': "))
+
+match color:
+    case Color.RED:
+        print("I see red!")
+    case Color.GREEN:
+        print("Grass is green")
+    case Color.BLUE:
+        print("I'm feeling the blues :(")
 
 		
 food = ['a','b','c','d','k']
@@ -688,3 +705,205 @@ answer_list = ['old value', ]
 foo(answer_list)
 print(answer_list)
 # output: ['old value', ]
+
+#
+# 方法
+#
+
+>>> def fib(n):    # write Fibonacci series up to n
+...     """Print a Fibonacci series up to n.""" 
+...     a, b = 0, 1
+...     while a < n:
+...         print(a, end=' ')
+...         a, b = b, a+b
+...     print()
+
+# 方法的第一行是 docstrings
+# 方法執行時，會使用一個儲存該方法區域變數的
+# 更準確地說，函數中的所有變數賦值(variable assignments)都將值存儲在 local symbol table 中
+# 變數 reference 順序
+	# 首先在 local symbol table 中查找，
+	# 然後在 function 的 local symbol table 中查找，
+	# 然後在 global symbol table 中查找
+	# 最後在 built-in names table 中查找。
+	
+# Thus, global variables and variables of enclosing functions cannot be directly assigned a value within a function, although they may be referenced.	
+
+# 全域變數與方法內的變數，在方法內不能直接 assign 值，但他們可以被 reference
+
+#The actual parameters (arguments) to a function call are introduced in the local symbol table of the called function when it is called; thus, arguments are passed using call by value (where the value is always an object reference, not the value of the object).
+
+# 呼叫方法時傳入的參數會被放到一個 local symbol table，換句話說，參數傳遞的方式是 Call-By-Object-Reference 
+
+# When a function calls another function, or calls itself recursively, a new local symbol table is created for that call.
+
+# 每個方法呼叫會有自己的 local symbol table
+
+# 沒有回傳值的方法其實會回傳 None 物件
+
+# 方法定義時，可設定參數預設值
+def ask_ok(prompt, retries=4, reminder='Please try again!'):
+
+# in 關鍵字
+if ok in ('y', 'ye', 'yes'): 
+# 變數 ok 的值是否在右邊的 sequence 中
+
+# The default values are evaluated at the point of function definition in the defining scope
+# 預設值是在方法定義的當下就決定
+
+i = 5
+
+def f(arg=i):
+    print(arg)
+
+i = 6
+f() # 印出5，不是6
+
+# 重要警告: 預設值只evaluate一次，當預設值為 mutable 物件像是list, dictionary, 或是物件會有不同
+def f(a, L=[]):
+    L.append(a)
+    return L
+
+print(f(1)) # [1]
+print(f(2)) # [1, 2] 因為L的值已經被改變了
+print(f(3)) # [1, 2, 3]
+
+# 不要預設值不在呼叫間分享
+
+def f(a, L=None):
+    if L is None:
+        L = []
+    L.append(a)
+    return L
+	
+# Keyword Arguments
+
+def parrot(voltage, state='a stiff', action='voom', type='Norwegian Blue'): 
+    print("-- This parrot wouldn't", action, end=' ') # end=' ' 表示不換行，預設 end 的值為 '\n'
+    print("if you put", voltage, "volts through it.")
+    print("-- Lovely plumage, the", type)
+    print("-- It's", state, "!")
+
+# 以下呼叫 OK
+parrot(1000)                                          # 1 positional argument
+parrot(voltage=1000)                                  # 1 keyword argument
+parrot(voltage=1000000, action='VOOOOOM')             # 2 keyword arguments
+parrot(action='VOOOOOM', voltage=1000000)             # 2 keyword arguments
+parrot('a million', 'bereft of life', 'jump')         # 3 positional arguments
+parrot('a thousand', state='pushing up the daisies')  # 1 positional, 1 keyword
+
+# 以下呼叫不 OK
+parrot()                     # required argument missing
+parrot(voltage=5.0, 'dead')  # non-keyword argument after a keyword argument
+parrot(110, voltage=220)     # duplicate value for the same argument
+parrot(actor='John Cleese')  # unknown keyword argument
+parrot(1000, voltage=1000)	 # multiple values for argument 'voltage'
+
+# 當最後一個參數是 **name，這是一個 dict 包含'其他'所有的 keyword arguments 
+# 搭配 *name 可以取得一個 tuple 包含'其他'的參數
+
+def cheeseshop(kind, *arguments, **keywords):    
+    for arg in arguments:
+        print(arg) # a b
+    print("-" * 40)
+    for kw in keywords:
+        print(kw, ":", keywords[kw]) # A B C
+
+cheeseshop("Limburger", "a", "b", shopkeeper="A", client="B", sketch="C")
+
+# kwargs 的列印順序一定是keyword argumen傳入的順序
+
+#
+# Special parameters
+#
+# / 和 * 是為了讓開發人員可以快速分清楚
+# Positional-Only, Positional-or-Keyword, Keyword-Only Arguments 用的
+
+def f(pos1, pos2, /, pos_or_kwd, *, kwd1, kwd2):
+      -----------    ----------     ----------
+        |             |                  |
+        |        Positional or keyword   |
+        |                                - Keyword only
+         -- Positional only
+		 
+# Positional-Only Parameters
+# 在 / 前面的參數傳入不可以用keyword argument的方式傳入
+# / 是 optional 的
+
+# Positional-or-Keyword Arguments
+# 在 * 前面的參數傳入可用positional 或 keyword argument的方式傳入
+
+# Keyword-Only Parameters
+# 在 * 前面的參數傳入只能用keyword argument的方式傳入
+
+def foo(name, **kwds):
+    return 'name' in kwds
+# 永遠無法回傳 True 因為'name'永遠綁定第一個參數
+	
+foo(1, **{'name': 2}) # TypeError: foo() got multiple values for argument 'name'
+
+# 要解決上述問題可以用 / 如下
+
+def foo(name, /, **kwds):
+    return 'name' in kwds
+foo(1, **{'name': 2}) # True
+
+# 換句話說, positional-only parameters 的名稱可以用在 **kwds 而不會造成模擬兩可的情形
+
+def foo(name, *, **kwds)
+# 錯誤 named arguments must follow *，星號後需接 named arguments
+
+# 使用 positional-only 如果不想讓使用者知道參數的名稱，這在參數沒有實際意義時是實用的， 如果你想要確保呼叫時參數的順序，or if you need to take some positional parameters and arbitrary keywords.
+
+# 使用 keyword-only 當名字有意義或是當方法因參數名稱而更容易了解時，或是要避免使用者依賴傳遞參數的順序
+
+# 關於 API，使用 positional-only 可避免因為未來參數名稱改變造成 API 壞掉
+
+#
+# Arbitrary Argument Lists
+#
+
+def write_multiple_items(file, separator, *args): # *args 是 tuple
+    file.write(separator.join(args))
+	
+# 通常，這些可變參數將在形式參數清單中排在最後，因為它們會收集傳遞給函數的所有剩餘輸入參數。在 *args 參數之後出現的任何形式參數都是"keyword-only"參數，這意味著它們只能用作 keyword 而不是 positional arguments。
+
+#
+# Unpacking Argument Lists
+#
+# 當要傳入的參數已經是 list 或 tuple 時，但要傳入的函數需要 separate positional arguments，
+# 此時就需要 unpacked，舉例來說，range()方法需要兩個分開的變數，作為起始與結束，
+# 當沒辦法取得兩個分開的數，使用 * 運算子來將 tuple 或 list 做 unpack 傳入方法
+ 
+ 
+list(range(3, 6))            # normal call with separate arguments [3, 4, 5]
+args = [3, 6]
+list(range(*args))            # call with arguments unpacked from a list [3, 4, 5]
+
+# 同樣道理, dictionaries 可以使用 ** 運算子傳遞 keyword arguments
+ 
+def parrot(voltage, state='a stiff', action='voom'):
+    print("-- This parrot wouldn't", action, end=' ')
+    print("if you put", voltage, "volts through it.", end=' ')
+    print("E's", state, "!")
+d = {"voltage": "four million", "state": "bleedin' demised", "action": "VOOM"}
+parrot(**d)
+
+#
+# Lambda Expressions
+#
+# 小型匿名方法可以用 lambda 關鍵字建立，Lambda 方法可以用於所有需要方法物件的地方. 語法限制上是 single expression，實際上他們只是一般方法定義的語法糖，如同巢狀方法定義, lambda 方法可以參考他的 containg scope 的變數
+
+def make_incrementor(n):
+    return lambda x: x + n
+
+f = make_incrementor(42) # <class 'function'>
+f(0) # 42
+f(1) # 43
+
+#上述範例使用 lambda expression 回傳一個 function，令一種用法是將一個小方法作為參數傳遞:
+
+pairs = [(1, 'one'), (2, 'two'), (3, 'three'), (4, 'four')]
+pairs.sort(key=lambda pair: pair[1])
+pairs
+[(4, 'four'), (1, 'one'), (3, 'three'), (2, 'two')]
