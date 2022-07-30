@@ -56,6 +56,12 @@ _是read-only
 
 其他數字 Deciaml/Fraction
 
+#
+# 隨機
+#
+import random
+random_number =  random.randint(1,10)
+
 字串
 "{:.2f}".format(2.6) # 2.60
 "{:.2f}".format(2.622) # 2.6
