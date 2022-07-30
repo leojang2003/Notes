@@ -20,9 +20,15 @@ print(argv[1]); // p2
 除法
 17 // 3  # 不回傳浮點數
 
+四捨五入
+print(round(2.666666, 2)) # 2.67
+
 次方
 5 ** 2 # 25
 2 ** 7  # 128
+
+
++= -= *= /=
 
 等號
 >>>
@@ -50,7 +56,9 @@ _是read-only
 其他數字 Deciaml/Fraction
 
 字串
-
+"{:.2f}".format(2.6) # 2.60
+"{:.2f}".format(2.622) # 2.6
+"{:.2f}".format(2.629) # 2.63 有四捨五入
 
 單引號，雙引號皆可表示字串
 >>> 'doesn\'t'  # "doesn't"
@@ -588,7 +596,8 @@ match food:
 
 
 
-https://25349023.github.io/articles/2021-03/py-structural-pattern-matching/
+https:/
+5349023.github.io/articles/2021-03/py-structural-pattern-matching/
 https://medium.com/short-bits/python-3-10-match-a-new-way-to-find-patterns-8452d1460407
 https://peps.python.org/pep-0635/
 https://benhoyt.com/cv/#about-me
