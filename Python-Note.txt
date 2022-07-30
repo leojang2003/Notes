@@ -42,6 +42,9 @@ In interactive mode, the last printed expression is assigned to the variable _
 >>> round(_, 2)
 113.06
 
+較大的數字可以用_來分隔，易於閱讀
+123_456_789 
+
 _是read-only
 
 其他數字 Deciaml/Fraction
@@ -65,6 +68,11 @@ print()方法會忽略兩側closing quote並印出escaped/special字元
 >>> print(s)  
 First line.
 Second line. # 會換行
+
+#
+# 轉型
+#
+num = str(20) # int轉型
 
 
 使用r來表示raw string
