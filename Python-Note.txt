@@ -61,6 +61,9 @@ _是read-only
 "{:.2f}".format(2.622) # 2.6
 "{:.2f}".format(2.629) # 2.63 有四捨五入
 
+"TEST".lower() # 轉小寫
+"TEST".count('t') # 取得字串出現次數
+
 單引號，雙引號皆可表示字串
 >>> 'doesn\'t'  # "doesn't"
 >>> "doesn't"   # "doesn't"
