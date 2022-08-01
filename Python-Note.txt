@@ -238,6 +238,12 @@ for迴圈
 >>> for w in words:
 ...     print(w, len(w))
 
+如果沒有要用到 for 後的變數，可以使用 _
+
+>>> words = ['cat', 'window', 'defenestrate']
+>>> for _ in words:
+...     print(')
+
 iterate collection時同時要修改collection容易出錯，通常的做法是複製一個新的collection
 
 # 建立一個 sample collection (此處使用的是dict)
