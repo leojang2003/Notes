@@ -63,6 +63,9 @@ import random
 random_number =  random.randint(1,10)
 random_number = random.random() 0.0000 ~ 0.99999
 
+random.shuffle(list) # 可以打亂li
+random.choice(list) # 隨機選取一個值
+
 字串
 "{:.2f}".format(2.6) # 2.60
 "{:.2f}".format(2.622) # 2.6
@@ -174,6 +177,10 @@ list是mutable的，與string不同
 
 清空list
 letters[:] = []
+
+list的最大值，最小值
+list.max()
+list.min()
 
 list長度len()
 >>> len(letters) # 4
@@ -391,9 +398,10 @@ def where_is(point):
 
 from dataclasses import dataclass
 
+
 command = input("what are you doing next")
 
-# [action, action2] = command.split() # 如果輸多於2個，unpack會失敗
+# [action, action2] = command.split() # 如果輸多於2個，unpack會失敗，split()用空白當作分隔
 
 match command.split():
 	case [action]: # 只有輸入1個字
@@ -668,7 +676,7 @@ def set_list(list):
     return list
  
 def add(list):
-    list.append("D")
+    list.append("D") # += 效果等同 append
     return list
  
 my_list = ["E"]
