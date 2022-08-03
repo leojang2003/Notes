@@ -73,6 +73,7 @@ random.choice(list) # 隨機選取一個值
 
 "TEST".lower() # 轉小寫
 "TEST".count('t') # 取得字串出現次數
+"we're right".title() # "We're Right"
 
 單引號，雙引號皆可表示字串
 >>> 'doesn\'t'  # "doesn't"
