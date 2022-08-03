@@ -763,7 +763,9 @@ print(answer_list)
 ...         a, b = b, a+b
 ...     print()
 
-# 方法的第一行是 docstrings
+# 方法的第一行是 docstrings，用 """ """ 
+
+
 # 方法執行時，會使用一個儲存該方法區域變數的
 # 更準確地說，函數中的所有變數賦值(variable assignments)都將值存儲在 local symbol table 中
 # 變數 reference 順序
