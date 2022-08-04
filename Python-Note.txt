@@ -990,3 +990,15 @@ print(my_function.__doc__)
 # 運算子兩側要空白，逗號後要空白，
 # UpperCamelCase 類別命名方式
 # lowercase_with_underscores 為 function/method 的命名方式
+
+#
+# Scope
+#
+
+if, while, for 內的變數沒有local scope
+fruits = ['apple','banana']
+
+if 'apple' in fruits:
+   new_fruit = 'fuji'
+
+print(new_fruit) # 可以讀到new_fruit印出'fuji'
