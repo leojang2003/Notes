@@ -1002,3 +1002,16 @@ if 'apple' in fruits:
    new_fruit = 'fuji'
 
 print(new_fruit) # 可以讀到new_fruit印出'fuji'
+
+#
+# import
+#
+
+import turtle
+
+new_obj = turtle.Turtle()
+
+或是
+
+from turtle import Turtle
+new_obj = Turtle()
