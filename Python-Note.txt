@@ -92,6 +92,8 @@ print()方法會忽略兩側closing quote並印出escaped/special字元
 First line.
 Second line. # 會換行
 
+
+
 邏輯運算子 : and or not
 
 #
@@ -1036,9 +1038,17 @@ new_obj = t.Turtle()
 
 with ("my.txt") as file
     content = file.read()
-    
+
+將內容寫入list
+with ("my.txt") as file
+    content = file.readlines()
+
+寫入
 with ("my.txt", mode="w") as file
     content = file.write()
-   
+
+附加
 with ("my.txt", mode="a") as file
     content = file.write() # append
+    
+strip() 就是 trim()
