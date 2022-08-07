@@ -1052,3 +1052,18 @@ with ("my.txt", mode="a") as file
     content = file.write() # append
     
 strip() 就是 trim()
+
+#
+# List Comprehension
+#
+
+list = [1, 2, 3, 4, 5]
+
+def multiply(num):
+    return num * 3
+
+new_list = [multiply(x + 1) for x in list]
+
+print(new_list) # [6, 9, 12, 15, 18]
+
+
