@@ -1015,3 +1015,9 @@ new_obj = turtle.Turtle()
 
 from turtle import Turtle
 new_obj = Turtle()
+
+或是
+
+import turtle as t
+
+new_obj = t.Turtle()
