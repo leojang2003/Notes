@@ -1029,3 +1029,10 @@ new_obj = Turtle()
 import turtle as t
 
 new_obj = t.Turtle()
+
+#
+# 打開檔案
+#
+
+with ("my.txt") as file
+    content = file.read()
