@@ -151,9 +151,17 @@ squares = [1, 4, 9, 16, 25] // 用中括號，逗號隔開
 >>> squares[0]  # 1
 >>> squares[-1] # 25
 >>> squares[-3:]  # 回傳新的 list [9, 16, 25]
+>>> squares[1:5:2} #
 slicing 會回傳新的 list
 
 >>> squares[:] # 回傳一個全新一樣的list [1, 4, 9, 16, 25]
+
+有increment的slicing 
+print(squares[0:5:2])  #[1, 9, 25] 
+print(squares[5:1:-1]) #[25, 16, 9] 
+print(squares[5:0:-1]) #[25, 16, 9, 4] 
+print(squares[5:0:-2]) #[25, 9]  
+print(squares[::-1])   #[25, 16, 9, 4, 1]
 
 list也可以concate
 >>> squares + [36, 49, 64, 81, 100] # 回傳 [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
