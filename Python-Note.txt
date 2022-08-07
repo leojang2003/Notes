@@ -1097,4 +1097,18 @@ sep = sentence.split()
 
 result = {x:len(x) for x in sep}
 
+從Dict做Dict Comprehension
+sentence = "What is the Airspeed Velocity of an Unladen Swallow?"
+# Don't change code above 👆
+
+sep = sentence.split()
+
+# Write your code below:
+
+result = {x:len(x) for x in sep}
+
+result2 = {key:value for (key,value) in result.items() if value > 2} # 注意語法
+
+print(result2)
+
 
