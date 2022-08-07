@@ -1066,4 +1066,10 @@ new_list = [multiply(x + 1) for x in list]
 
 print(new_list) # [6, 9, 12, 15, 18]
 
+new_list = [multiply(x + 1) for x in list if x%2 == 0] # 可以加條件
 
+#
+# Sequence
+#
+list, range, tuple, string
+是有順序的
