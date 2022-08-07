@@ -1073,3 +1073,28 @@ new_list = [multiply(x + 1) for x in list if x%2 == 0] # 可以加條件
 #
 list, range, tuple, string
 是有順序的
+
+#比較兩個檔案的內容，找出一致的
+
+file1 = open('file1.txt')
+file2 = open('file2.txt')
+
+file1_nums = file1.readlines()
+file2_nums = file2.readlines()
+
+result = [int(x) for x in file1_nums if x in file2_nums]
+
+#
+# Dictionary Comprehension
+#
+
+sentence = "What is the Airspeed Velocity of an Unladen Swallow?"
+# Don't change code above 👆
+
+sep = sentence.split()
+
+# Write your code below:
+
+result = {x:len(x) for x in sep}
+
+
