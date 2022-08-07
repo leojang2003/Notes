@@ -1036,3 +1036,9 @@ new_obj = t.Turtle()
 
 with ("my.txt") as file
     content = file.read()
+    
+with ("my.txt", mode="w") as file
+    content = file.write()
+   
+with ("my.txt", mode="a") as file
+    content = file.write() # append
