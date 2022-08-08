@@ -1112,10 +1112,16 @@ result2 = {key:value for (key,value) in result.items() if value > 2} # 注意語
 print(result2)
 
 #
-# Python 是 Dynamic Typing
+# Python 是 Dynamic Typing 
 #
 
 a = 4
 print(id(a)) # 3152268755280
 a = "4"
 print(id(a)) # 3152269762224
+
+#
+# Python 是 Strongly Typing 
+#
+
+3 + "5" # error
