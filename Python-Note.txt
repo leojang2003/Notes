@@ -1131,3 +1131,5 @@ print(id(a)) # 3152269762224
 #
 num:int
 num = "e" # error
+
+datetime 有一個方法 strftime() 可以將datetime轉為各式時間格式，if給不同的參數
