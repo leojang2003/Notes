@@ -1133,3 +1133,34 @@ num:int
 num = "e" # error
 
 datetime 有一個方法 strftime() 可以將datetime轉為各式時間格式，if給不同的參數
+
+#
+# Decorator Function
+#
+
+這是一個用來裝飾方法，計算方法的執行時間
+def speed_calc_decorator(function):
+  def wrapper_function():
+    current_time = time.time()
+    function()
+    end_time = time.time()
+    return end_time-current_time
+  return wrapper_function
+    
+@speed_calc_decorator
+def fast_function():
+    for i in range(100):
+        i * i
+
+@speed_calc_decorator     
+def slow_function():
+    for i in range(10000):
+        i * i
+
+time1 = fast_function()
+time2 = slow_function()
+
+@speed_calc_decorator 其實是一個syntax sugar
+真正代表的意義是
+func = speed_calc_decorator(fast_function)
+func()
