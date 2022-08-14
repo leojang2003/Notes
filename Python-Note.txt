@@ -1164,3 +1164,5 @@ time2 = slow_function()
 真正代表的意義是
 func = speed_calc_decorator(fast_function)
 func()
+
+Day 57. 468 https://www.npoint.io/
