@@ -204,6 +204,27 @@ list裡包含list
 >>> x[0] # ['a', 'b', 'c']
 >>> x[0][1] #b
 
+# list 的其他方法
+list.extend(iterable)
+list.insert(index, val)
+list.remove(val)
+list.pop([i]) # []表示參數是optional的，pop位於index的值，沒給參數pop最後一個值
+list.clear() # 等同 del list[:]，如果是del list則整個物件會被刪除
+list.count(val) # 計算val出現的次數
+list.index(val, start, end) # 出現val的index，start,end是optional，end不包含
+
+list = [2,4,6,2,4,6]
+list.index(2) # 0
+list.index(2, 1) # 3
+list.index(2, 1, 3) # 錯誤
+list.index(2, 1, 4) # 3
+list.sort(*, key=None, reverse=False) # in-place 
+list.reverse() # in-place 
+list.copy() # 淺複製，等同a[:]
+
+#字串的list可以sort，但字串混int不行，或是有包含None的也不行
+#insert, remove, sort會回傳None
+
 多重assignment
 >>> a, b = 0, 1
 
@@ -1166,3 +1187,176 @@ func = speed_calc_decorator(fast_function)
 func()
 
 Day 57. 468 https://www.npoint.io/
+
+numbers = [1, 2, 3]
+letters = ['a', 'b', 'c']
+zipped = zip(numbers, letters) 
+
+type(zipped) # <class 'zip'> 一個iterator
+
+list = [[1,2,3],[4,5,6],[7,8,9]]
+zipped = zip(*list) # *list 表示 unpack 的動作，所以傳入的會是[1,2,3],[4,5,6],[7,8,9]，共3個list物件
+
+
+# list(zipped) # 要用一個 list 來使用這個 iterator
+[(1, 'a'), (2, 'b'), (3, 'c')]
+
+# 注意 zip 方法使用 set，順序會不一致
+s1 = {2, 3, 1}
+s2 = {'b', 'a', 'c'}
+list(zip(s1, s2)) # [(1, 'a'), (2, 'c'), (3, 'b')]
+
+# zip()方法接受任意數量的iterable
+# zip()產出的數量等同於最短的iterable的資料數量
+
+list(zip(range(5), range(100))) 
+# [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)] 
+# 第一個長度5, 第二個iterable長度100，最後產生長度5的，第二個後面95個資料被忽略了
+
+# 如果其他要被忽略的資料需要保留，則可以使用itertools.zip_longest()
+from itertools import zip_longest
+numbers = [1, 2, 3]
+letters = ['a', 'b', 'c']
+longest = range(5)
+zipped = zip_longest(numbers, letters, longest, fillvalue='?')
+list(zipped)
+# [(1, 'a', 0), (2, 'b', 1), (3, 'c', 2), ('?', '?', 3), ('?', '?', 4)]
+
+# 3.10之後 zip() 新增參數 strict 預設 False，可檢查iterables的長度是否一致
+# 傳入的 iterables 如果長度不一致，會報錯
+
+# Python2 的 zip() 會回傳一個tuple的list
+# Python3 的 zip() 會回傳一個iterator，可依需要產生 tuple <- 重點
+
+# Python zip()最常用的情境就是傳入多個iterables  
+# zip() 可以平行 iterate 多個 iterables
+
+# 在 Python 3.6 後，dictionaries 是 ordered 的 collections
+# 利用這個優勢，可以iterate這個dict使用zip()
+
+dict_one = {'name': 'John', 'last_name': 'Doe', 'job': 'Python Consultant'}
+dict_two = {'name': 'Jane', 'last_name': 'Doe', 'job': 'Community Manager'}
+for (k1, v1), (k2, v2) in zip(dict_one.items(), dict_two.items()):
+    print(k1, '->', v1)
+    print(k2, '->', v2)
+
+# 排序
+letters = ['b', 'a', 'd', 'c']
+numbers = [2, 4, 3, 1]
+data1 = list(zip(letters, numbers))
+data1 # [('b', 2), ('a', 4), ('d', 3), ('c', 1)]
+
+data1.sort()  # Sort by letters
+data1 # [('a', 4), ('b', 2), ('c', 1), ('d', 3)]
+data2 = list(zip(numbers, letters))
+data2 # [(2, 'b'), (4, 'a'), (3, 'd'), (1, 'c')]
+data2.sort()  # Sort by numbers
+data2 # [(1, 'c'), (2, 'b'), (3, 'd'), (4, 'a')]
+
+	
+
+#
+# Iterator, Iterable
+# 
+
+# Python 提供 iterables, iterator, and generators. Lists, tuples 都是 iterables. 
+# Iterator 藉由 iterate 該 iterator 來取得值
+
+# Another way to distinguish iterators from iterable is that in python iterators have the next() function.
+# 另一種區分iterators/iterable的方式，是python所有的iterators都有next()方法
+
+# Next() 方法很重要
+
+# 每個 iterator 都是 iterable, 反之不一定
+
+#
+# next(iterator[, default])
+#
+
+# 要取得iterator的下個值，可以使用next()方法
+# list/tuple 不支援 next()
+# 可以使用 iter() 方法讓 list 變成 iterator，就可以使用 next()
+
+list = [1,2,3]
+itr = iter(list)
+next(itr) # 1
+next(itr) # 2
+next(itr) # 3
+next(itr) # StopIteration Error
+
+list = [1,2,3]
+itr = iter(list)
+next(itr) # 1
+next(itr) # 2
+next(itr) # 3
+next(itr, 'end') # end，避免出現 Exception
+
+# 如何讓 iterable 變成 iterator ? 使用 iter()方法
+
+# next() 的優點 :
+# next() 方法比 for loop 久，但優點在於可以知道每一步在做什麼
+# 搭配 generator() 在處理大資料量時，具有節省空間與處理能力的優點
+
+# next() 搭配 generator()
+
+def gen():
+	i = 1
+	while True:
+		yield i*i
+		i += 1
+
+gener = gen()
+
+next(gener) # 1
+next(gener) # 4
+next(gener) # 9
+next(gener) # 16
+
+# next() 搭配捕捉exception()
+
+iterable_value = 'Geeks'
+iterable_obj = iter(iterable_value)
+ 
+while True:
+    try:
+ 
+        # Iterate by calling next
+        item = next(iterable_obj)
+        print(item)
+    except StopIteration:
+ 
+        # exception will happen when iteration will over
+        break
+ 
+ #
+ # yield
+ #
+ 
+# yield 陳述式會暫停 function 的執行並把值送給aller，但又保留一定的state讓程式可以繼續成行
+# 當程式繼續時，會從上一個 # yield之後接續執行.這讓程式可以在一段時間內產生一系列的值，
+# 而不是一次產生後傳回像list一般
+
+#
+# Generator
+#
+
+當我們想要iterate一個sequence但又不想將整個sequence存儲在memory中時，我們應該使用 yield。 使用 Yield 的 Python方法叫做 generator。generator函數的定義與普通函數一樣，但每當需要生成值時，它都會使用 yield 關鍵字而不是 return。如果 def 的主體包含 yield，則該函數自動成為generator函數。
+
+def nextSquare():
+    i = 1
+ 
+    # An Infinite loop to generate squares
+    while True:
+        yield i*i
+        i += 1  # Next execution resumes
+        # from this point
+ 
+ 
+# Driver code to test above generator
+# function
+for num in nextSquare():
+    if num > 100
+    100:
+        break
+    print(num)
+
