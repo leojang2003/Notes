@@ -1,0 +1,292 @@
+import os
+import logging
+
+
+
+class PassByReference:
+    def __init__(self):
+        self.variable = []
+        self.change(self.variable)
+        print(self.variable) # instance vari
+        
+    def change(self, var):
+        var.append('Changed')
+
+p = PassByReference()
+
+
+for x in range(10):
+	print('')
+
+class Ten:
+    def __get__(self, obj, objtype=None):
+        return 10
+    
+class A:
+    queue = []
+    x = 5                       # Regular class attribute
+    y = Ten()
+    
+dog = A()
+cat = A()
+
+dog.queue.append(1)
+cat.queue.append(2)
+
+print('---', dog.x)
+print('---', cat.x)
+cat.x = 'Tom'
+print('---', dog.__dict__)
+print('---', cat.__dict__)
+print('---', dog.x)
+print('---', cat.x)
+
+
+for x in range(10):
+	print('☆')
+
+class DirectorySize:
+
+    def __get__(self, obj, objtype=None):
+        return len(os.listdir(obj.dirname))
+
+class Directory:
+
+    size = DirectorySize()              # Descriptor instance
+
+    def __init__(self, dirname):
+        self.dirname = dirname          # Regular instance attribute
+
+s = Directory('songs')
+
+Directory
+
+print(Directory.__dict__['size'])
+
+#print(dir(s))
+#print(dir()) # 回傳 local scope 的 names
+# ['Directory', 'DirectorySize', '__annotations__', '__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__', 'os', 's', 'x']
+# print(dir(__name__))
+#print(dir(s))
+#['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'dirname', 'size']#
+
+print(s.__class__)
+# print(s.__class__)
+
+for x in range(10):
+	print('*')
+
+print('s.__class__,        ',    s.__class__,        )
+print('s.__delattr__,      ',    s.__delattr__,      )
+print('s.__dict__,         ',    s.__dict__,         )
+print('s.__dir__,          ',    s.__dir__,          )
+print('s.__doc__,          ',    s.__doc__,          )
+print('s.__eq__,           ',    s.__eq__,           )
+print('s.__format__,       ',    s.__format__,       )
+print('s.__ge__,           ',    s.__ge__,           )
+print('s.__getattribute__, ',    s.__getattribute__, )
+print('s.__gt__,           ',    s.__gt__,           )
+print('s.__hash__,         ',    s.__hash__,         )
+print('s.__init__,         ',    s.__init__,         )
+print('s.__init_subclass__,',    s.__init_subclass__ )
+print('s.__le__,           ',    s.__le__,           )
+print('s.__lt__,           ',    s.__lt__,           )
+print('s.__module__,       ',    s.__module__,       )
+print('s.__ne__,           ',    s.__ne__,           )
+print('s.__new__,          ',    s.__new__,          )
+print('s.__reduce__,       ',    s.__reduce__,       )
+print('s.__reduce_ex__,    ',    s.__reduce_ex__,    )
+print('s.__repr__,         ',    s.__repr__,         )
+print('s.__setattr__,      ',    s.__setattr__,      )
+print('s.__sizeof__,       ',    s.__sizeof__,       )
+print('s.__str__,          ',    s.__str__,          )
+print('s.__subclasshook__, ',    s.__subclasshook__, )
+print('s.__weakref__,      ',    s.__weakref__,      )
+print('s.dirname)          ',    s.dirname           )
+print('s.size)             ',    s.size              )
+
+for x in range(10):
+	print('?')
+
+# 上述範例有一個是 private name _age 是寫死在 LoggedAgeAccess 類別中。這表示每個 instance 只能有一個 logged attribute 而且 name 是固定的，我們可以用以下寫法來修正
+    
+class LoggedAccess:
+	
+    def __init__(self):
+        print('LoggedAgeAccess init')
+	
+    def __set_name__(self, owner, name):
+        print('__set_name__ called', owner, name)
+        self.public_name = name
+        self.private_name = '_' + name
+
+    def __get__(self, obj, objtype=None):
+        print('vars(self)', vars(self))
+        value = getattr(obj, self.private_name) # 假設 self.private_name == "foo"，等同 obj.foo
+        logging.warning('Accessing %r giving %r', self.public_name, value)
+        return value
+
+    def __set__(self, obj, value):
+        logging.warning('Updating %r to %r', self.public_name, value)
+        setattr(obj, self.private_name, value)
+
+class Person:
+    
+    name = LoggedAccess()                # First descriptor instance
+    
+    age = LoggedAccess()                 # Second descriptor instance
+
+    def __init__(self, name, age):
+        print('*** __init__ ***')
+        self.name = name                 # Calls the first descriptor
+        self.age = age                   # Calls the second descriptor
+
+    def birthday(self):
+        self.age += 1
+        
+    def elaborate(self):
+        print(self.name)
+
+# 建立類別 Person 時，會呼叫 __set_name__         
+# __set_name__ called <class '__main__.Person'> name
+# __set_name__ called <class '__main__.Person'> age        
+
+# 我們可以看到 class dictionary 中的 name 有 public_name, private_name
+print(type(Person.__dict__['name'])) # <class '__main__.LoggedAccess'>           
+print(vars(Person.__dict__['name'])) # {'public_name': 'name', 'private_name': '_name'}		
+print(vars(vars(Person)['name']))    # {'public_name': 'name', 'private_name': '_name'}
+
+# 我們可以看到 class dictionary 中的 age 有 public_name, private_name
+print(vars(Person.__dict__['age'])) # {'public_name': 'age', 'private_name': '_age'}
+
+pete = Person('Peter P', 10)
+# WARNING:root:Updating 'name' to 'Peter P'
+# WARNING:root:Updating 'age' to 10
+
+kate = Person('Catherine C', 20)
+# WARNING:root:Updating 'name' to 'Catherine C'
+# WARNING:root:Updating 'age' to 20
+
+# instance 只會包含 private 的 names
+print(vars(pete)) # {'_name': 'Peter P', '_age': 10}
+
+pete.name = 'Gunn'
+
+#print(pete.__dict__['']) # {'_name': 'Peter P', '_age': 10}
+print(pete._name)   # Peter P
+print(pete.name)    # Peter P
+# WARNING:root:Accessing 'name' giving 'Peter P' 
+# Peter P
+print(vars(Person))
+
+pete.elaborate()
+
+
+# mary = Person('Mary M', 30)
+# lisa = Person('Lisa L', 20)
+# print(mary.__dict__)
+# print(lisa.__dict__)
+# print(Person.__dict__)
+
+# print(dir(mary))
+repeater = '*'
+for x in range(100):
+	repeater += '*'
+print(repeater)
+print('')
+
+def getID(target):
+    print(target, str(id(target))[-3:])
+
+
+
+myvar1 = 'y'
+# 新物件建立，其值是'y'，一個新的 reference/pointer 被建立指向這個新物件
+getID(myvar1) # 1928731200304 
+
+myvar = 1
+# Assign 值在 Python 中就是 binding，我們將值 1 指派給 myvar
+getID(myvar) # 可以看到 myvar 有 id 1928725266672 
+myvar = 'x'
+# 我們將字串 'x' 指派到相同的變數是可行的，因為在 Python 中  data type 是動態的(dynamically typed)
+# 重要概念 : 當變數被指派新的值時，Python 會建立一個'新物件'來儲存值，而不是變更原物件的值，因為新物件建立，所以一個新的 reference/pointer 被建立指向這個新物件
+getID(myvar) # id 變成 1928725991984 
+
+myvar2 = myvar1
+getID(myvar2) # id 變同 myvar1 1928731200304 
+# 沒有建立新的物件，僅建立一個 reference/pointer 指向
+
+myvar = myvar1
+getID(myvar) # id變同myvar1 1928731200304 
+
+myvar1 = 'z'
+getID(myvar1) # id 變了 1661088009392
+
+getID(myvar2) # id 維持 1928731200304 
+getID(myvar) # id 維持 1928731200304
+
+myList = []
+getID(myList) # 2249404646848
+myList.append(1)
+getID(myList) # 2249404646848
+# id 不變因為 list 為 mutable 
+
+def update_var(var_to_update):
+    getID(var_to_update)
+update_var(myvar2)
+
+getID(myvar2)
+
+# Object Identity
+# 當 Python 建立物件時，像是 variable，function ... 等，檯面下的 Python interpreter 會建立一個獨特的號碼可以識別該物件，當物件不再被參考時，則物件被移除，identity number 也改由其他物件使用。
+
+
+
+    
+class Student:
+    
+    NAME = ''
+    DICT = {}
+    print('0 id(DICT)', id(DICT)) # 2060794665984
+        
+    def __init__(self, name):
+        self.NAME = name
+        self.DICT['name'] = name
+        print('__init__ id(self.DICT[', name, '])', id(self.DICT['name']))
+        print('__init__ id(self.DICT', id(self.DICT)) #2060794665984
+        
+    def change_DICT(self, change):
+        self.DICT['name'] = change
+        print('change_DICT id(self.DICT', id(self.DICT))
+        print('change_DICT id(self.DICT[', change, '])', id(self.DICT['name']))
+        
+student_one = Student('Leo')
+student_two = Student('Kim')
+
+print ('1 Student one NAME: ' + student_one.NAME)
+print ('2 Student two NAME: ' + student_two.NAME)
+print ('3 id(Student.DICT', id(Student.DICT))
+print ('4 id(student_one.DICT)', id(student_one.DICT))
+print ('5 id(student_two.DICT)', id(student_two.DICT))
+print ('---------------------------------')
+print ('6 id(Student.DICT)', id(Student.DICT))
+print ('7 id(student_one.DICT)', id(student_one.DICT))
+print ('8 id(student_two.DICT)', id(student_two.DICT))
+print ('9 Student one NAME: ' + student_one.NAME)
+print ('10 Student two NAME: ' + student_two.NAME)
+print ('11 Student one DICT: ' + str(student_one.DICT))
+print ('12 Student two DICT: ' + str(student_two.DICT))
+print ('---------------------------------')
+student_one.change_DICT('Tom')
+print ('13 Student one DICT: ' + str(student_one.DICT))
+print ('14 Student two DICT: ' + str(student_two.DICT))
+print ('15 id(Student.DICT)', id(Student.DICT))
+print ('16 id(student_one.DICT)', id(student_one.DICT))
+print ('17 id(student_two.DICT)', id(student_two.DICT))
+        
+
+
+https://stackoverflow.com/questions/50638760/python-class-instances-share-class-dictionary-variable
+https://stackoverflow.com/questions/1680528/how-to-avoid-having-class-data-shared-among-instances
+https://stackoverflow.com/questions/986006/how-do-i-pass-a-variable-by-reference/986145#986145
+https://towardsdatascience.com/python-variable-assignment-9f43aed91bff
