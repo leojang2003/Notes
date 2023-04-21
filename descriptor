@@ -1,0 +1,1171 @@
+# 模擬 types.MethodType 如下 ...
+
+class MethodType:
+    "模擬 PyMethod_Type in Objects/classobject.c"
+
+    def __init__(self, func, obj):
+        print('MethodType __init__')
+        self.__func__ = func
+        self.__self__ = obj
+
+    def __call__(self, *args, **kwargs):
+        func = self.__func__
+        obj = self.__self__
+        print('MethodType __call__')
+        return func(obj, *args, **kwargs)
+
+
+# 嘗試做出類似 function 的 class。如同 function，EmulateFunction 也是一個 descriptor
+
+#import types
+
+class EmulateFunction:
+    
+    def __init__(self, f):
+        print('呼叫 init : self=', self, 'f=', f)
+        self.f = f
+        self.f.__qname__ = 'check'
+    
+    def __get__(self, obj, objtype=None):        
+        print('呼叫 get : self=', self, 'obj=', obj)
+        if obj is None:
+            return self
+        #return types.MethodType(self, obj)
+        return MethodType(self, obj)
+    
+    def __call__(self, *args, **kargs):
+        print('呼叫 call : called self=', self, '*args=', *args)        
+        return self.f(*args, **kargs)
+        
+    
+class Car:
+    
+    def check(self):
+        print('check() called')
+        pass
+        
+    check = EmulateFunction(check)
+
+print(Car.__dict__['check']) # <__main__.EmulateFunction object at 0x00000187CD40BA30>
+print('')
+print(Car.__dict__['check'].__get__(None))  # <__main__.EmulateFunction object at 0x000001F85F8E3D90>
+print(Car.__dict__['check'].__get__(Car))   # <__main__.MethodType object at 0x000001E1BCAE3D00>
+print(Car.__dict__['check'].__get__(Car())) # <__main__.MethodType object at 0x000001E1BCAE3D00>
+
+Car.__dict__['check'].__get__(None)(Car())  # 可以呼叫
+Car.__dict__['check'].__get__(Car)()        # 可以呼叫
+Car.__dict__['check'].__get__(Car())()      # 可以呼叫
+   
+ 
+# 執行後出現以下 log，注意 Car 的 check 是一個 EmulateFunction 物件，我們用 EmulateFunction 來模擬 function
+# 也因為 EmulateFunction 有實作 __get__() 方法，所以 check 同時也是一個 non-data descriptor，log 如下
+# 呼叫 init : self= <__main__.EmulateFunction object at ...> f= <function Car.check at ...>
+
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆')    
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆')    
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆')    
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆')    
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆') 
+
+print(Car.check)
+# 會呼叫 __get__() 方法，但第二個參數的 obj 為 None，log 如下
+# 呼叫 get : self= <__main__.EmulateFunction object at ...> obj= None 
+# 回傳的物件是 <__main__.EmulateFunction object at ...>
+
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆')    
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆')    
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆')    
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆')    
+print('☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆') 
+
+print(vars(Car.check))
+# {'f': <function Car.check at ...>}
+# EmulateFunction 物件有一個 function 叫 f
+
+try:
+    print(Car.check.__func__) # EmulateFunction' object has no attribute '__func__'
+    print(Car.check.__self__) # EmulateFunction' object has no attribute '__self__'
+
+    # 我們可以看到 EmulateFunction 物件是沒有 __func__ 跟 __self__ 的
+    # 是 
+    
+    Car.check()
+
+    # 呼叫 get : self= <__main__.EmulateFunction object at ...> obj= None
+    # 呼叫 call : called self= <__main__.EmulateFunction object at ...> *args=
+    # 我們可以看到 __call__最後會回傳 self.f(*args, **kargs)，但因為 *args 為空的 tuple
+    # 所以會出現 TypeError: Car.check() missing 1 required positional argument: 'self'   
+except:
+    pass
+    
+car = Car()
+
+print(car.check) # <bound method ? of <__main__.Car object at ...>>
+# car.check 呼叫 EmulateFunction 的 __get__()，回傳一個 bound method
+
+print(car.check.__func__) # <__main__.EmulateFunction object at ...>
+print(car.check.__self__) # <__main__.Car object at ...>
+
+car.check() # check() called
+
+#
+# 模擬 static method 如下 ...
+#
+
+print('模擬 static method 如下 ...')
+
+class EmulateStaticMethod:
+    "模擬 PyStaticMethod_Type() in Objects/funcobject.c"
+
+    def __init__(self, f):
+        print('呼叫 init : self=', self, 'f=', f)
+        self.f = f
+
+    def __get__(self, obj, objtype=None):
+        print('呼叫 get : self=', self, 'obj=', obj)
+        return self.f
+
+    def __call__(self, *args, **kwds):
+        print('呼叫 call : called self=', self, '*args=', *args)      
+        return self.f(*args, **kwds)
+        
+class Car:
+    
+    def check():
+        print('check() called')
+        pass
+        
+    check = EmulateStaticMethod(check)   
+
+# 呼叫 init : self= <__main__.EmulateStaticMethod object at ...> f= <function Car.check at ...>
+
+
+print(Car.check)
+# 會呼叫 __get__() 方法，但第二個參數的 obj 為 None，log 如下
+# 呼叫 get : self= <__main__.EmulateStaticMethod object at ...> obj= None 
+# 注意這裡 get 回傳的是 self.f，也就是 <function Car.check at ...>
+
+print(vars(Car.check))
+# {} 
+
+Car.check() # check() called
+
+# 呼叫 get : self= <__main__.EmulateStaticMethod object at ...> obj= None
+# 沒有呼叫 EmulateStaticMethod 的 __call__()，直接呼叫 function 的 __call__()
+# 可以看到成功呼叫沒傳入參數的方法呼叫
+  
+car = Car()
+
+print(car.check) # <function Car.check at ...>
+# car.check 呼叫 EmulateStaticMethod 的 __get__()，回傳一個 function
+
+car.check() # check() called
+
+#
+# static method 總結
+# 不管是從類別或是物件都可以成功呼叫  static method 
+#
+
+#
+# 使用 @EmulateStaticMethod decorator 如下 ...
+#
+print('使用 @EmulateStaticMethod decorator 如下 ...')
+
+class Car:
+    
+    @EmulateStaticMethod
+    def check():
+        print('check() called')
+        pass
+
+c = Car()
+Car.check() # check() called  
+c.check()   # check() called  
+
+#
+# 如上，使用 decorator 也從類別或是物件成功呼叫 check
+#
+
+#
+# 模擬 class method 如下 ...
+#
+print('模擬 class method 如下 ...')
+
+class EmuClsMethod:
+    "Emulate PyClassMethod_Type() in Objects/funcobject.c"
+
+    def __init__(self, f):
+        print('呼叫 init : self=', self, 'f=', f)
+        self.f = f
+
+    def __get__(self, obj, cls=None):
+        print('呼叫 get : self=', self, 'obj=', obj, 'cls=', cls)
+        
+        # cls 看起來不會是 None，不懂這裡的用途?
+        if cls is None:
+            print('cls is None')
+            cls = type(obj)
+        
+        if hasattr(type(self.f), '__get__'):
+            print('self.f=', self.f, 'type(self.f)=', type(self.f), 'has attribute __get__')            
+            return self.f.__get__(cls, cls)
+        
+        return MethodType(self.f, cls)
+
+class Car:
+    
+    def check(self):
+        print('check() called')
+        pass
+        
+    check = EmuClsMethod(check) 
+
+# 呼叫 init : self= <__main__.EmuClsMethod object at ...> f= <function Car.check at ...>
+
+print(Car.check)
+# 呼叫 get : self= <__main__.EmuClsMethod object at ...> obj= None cls= <class '__main__.Car'>
+# self.f= <function Car.check at ...> type(self.f)= <class 'function'> has attribute __get__
+# <bound method Car.check of <class '__main__.Car'>>
+
+Car.check() # check() called
+
+print(vars(Car.check)) # {}
+print(Car.check.__func__) # <function Car.check at ...>
+print(Car.check.__self__) # <class '__main__.Car'>
+
+print('從物件呼叫 class method 如下 ...')
+    
+car = Car()
+
+print(car.check) # <bound method Car.check of <class '__main__.Car'>>
+
+print(car.check.__func__) # <function Car.check at ...>
+print(car.check.__self__) # <class '__main__.Car'>
+
+car.check() # check() called
+
+print('     ')
+print('連鎖 decorator 如下 ...')
+print('     ')
+
+class Car:
+    
+    @EmuClsMethod
+    @property    
+    def check(self):
+        return 20
+        pass
+    
+print(Car.check)    # 20
+print(Car().check)  # 20
+
+print('     ')
+print('連鎖 decorator 拆開如下 ...')
+print('     ')
+
+class Car:
+           
+    def check(self):
+        return 20
+        pass
+
+    check = property(check) #    
+    check = EmuClsMethod(check)    
+
+# 執行 check = EmuClsMethod(check) 的 log 如下
+# 呼叫 init : self= <__main__.EmuClsMethod object at ...> f= <property object at ...>
+
+print('Car.check')
+print(Car.check)
+
+# 呼叫 get : self= <__main__.EmuClsMethod object at ...> obj= None cls= <class '__main__.Car'>
+# self.f= <property object at ...> type(self.f)= <class 'property'> has attribute __get__
+
+print('Car().check') 
+print(Car().check)
+
+# 呼叫 get : self= <__main__.EmuClsMethod object at ...> obj= <__main__.Car object at ...> cls= <class '__main__.Car'>
+# self.f= <property object at ...> type(self.f)= <class 'property'> has attribute __get__
+# 20
+
+try:
+    Car.check()     # 'int' object is not callable 
+    Car().check()   # 'int' object is not callable 
+except:
+    pass
+    
+print('     ')
+print('若是顛倒 decorator ... 如下')
+print('     ')
+    
+class Car:
+    
+    @property
+    @EmuClsMethod    
+    def check(self):
+        return 20
+        pass
+    
+print(Car.check)    # 20
+try:
+    print(Car().check)  # 'EmuClsMethod' object is not callable
+    # 因為 property 的 __get__() 會回傳 self.fget(obj)，而 fget 為 EmuClsMethod 物件
+except:
+    pass
+
+print('     ')
+print('若是顛倒 decorator ... 拆開如下')
+print('     ')
+
+class Car:
+           
+    def check(self):
+        return 20
+        pass
+
+    check = EmuClsMethod(check)
+    check = property(check)
+
+# 呼叫 init : self= <__main__.EmuClsMethod object at ...> f= <function Car.check at ...>
+
+print(Car.check)    # <property object at 0x000001EF93206CF0>
+try:
+    print(Car().check)  # 'EmuClsMethod' object is not callable
+    # 因為 property 的 __get__() 會回傳 self.fget(obj)，而 fget 為 EmuClsMethod 物件
+except:
+    pass
+'''
+
+
+
+<<<<<<<<<<<<<<<<<<
+
+
+# Static methods 回傳底下的 function 而不作任何修改。呼叫 c.f 或 C.f 等同 object.__getattribute__(c, "f") 或 object.__getattribute__(C, "f"). 印此，不論透過 object 或 class 存取都是得到相同的 function object
+
+# 當方法不需要使用 self variable 時，可以將方法設為靜態方法。
+
+class E:
+    @staticmethod
+    def f(x):
+        return x * 10
+E.f(3) # 30
+
+E().f(3) # 30
+
+# 使用 non-data descriptor，python 版的 staticmethod() 如下:
+
+class StaticMethod:
+    "Emulate PyStaticMethod_Type() in Objects/funcobject.c"
+
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, objtype=None):
+        return self.f
+
+    def __call__(self, *args, **kwds):
+        return self.f(*args, **kwds)
+        
+        
+        <<<<<<<<<<<<<<<<<<<
+        
+        # Member objects and __slots__
+# 當一個 class 定義 __slots__，他會以固定長度的陣列取代 instance dictionaries，這樣有幾個好處:
+
+# 1. 提供立即偵測錯誤的 attribute assignment，因為只有 __slots__ 裡面定義的才允許
+
+class Vehicle:
+    __slots__ = ('id_number', 'make', 'model')
+try:
+
+    auto = Vehicle()
+    auto.id_nubmer = 'VYE483814LQEX'  
+    #AttributeError: 'Vehicle' object has no attribute 'id_nubmer'
+except:
+    pass
+
+# 2. Helps create immutable objects where descriptors manage access to private attributes stored in __slots__:
+# 2. 當 descriptor 對 __slots__ 的 private attribute 做管制時，協助建立 immutable 物件
+
+class Immutable:
+
+    __slots__ = ('_dept', '_name')          # Replace the instance dictionary
+
+    def __init__(self, dept, name):
+        self._dept = dept                   # Store to private attribute
+        self._name = name                   # Store to private attribute
+    
+    @property                               # Read-only descriptor
+    def dept(self):
+        return self._dept
+
+    @property
+    def name(self):                         # Read-only descriptor
+        return self._name
+
+mark = Immutable('Botany', 'Mark Watney')
+try:
+    print(mark.__dict__)
+    # AttributeError: 'Immutable' object has no attribute '__dict__'. Did you mean: '__dir__'
+    # __dict__ 被取代了
+except:
+    pass
+
+try:
+    print(mark.dept) # 'Botany'
+
+    # mark.dept = 'Space Pirate' # AttributeError: can't set attribute 'dept'
+
+    mark.location = 'Mars'
+    # 'Immutable' object has no attribute 'location'
+    
+except:
+    pass
+    
+
+# 3. 節省記憶體
+# 4. 提升速度
+# 5. 搭配 functools.cached_property() 需要 instance dictionary 以運作:
+
+from functools import cached_property
+
+class CP:
+    __slots__ = ()                          # Eliminates the instance dict
+
+    @cached_property                        # Requires an instance dict
+    def pi(self):
+        return 4 * sum((-1.0)**n / (2.0*n + 1.0)
+                       for n in reversed(range(100_000)))
+
+
+
+try:
+    CP().pi
+    #TypeError: No '__dict__' attribute on 'CP' instance to cache 'pi' property.
+except:
+    pass
+    
+
+
+'''
+
+<<<<<<<<<<<<<<<
+
+class MethodType:
+    "模擬 PyMethod_Type in Objects/classobject.c"
+
+    def __init__(self, func, obj):
+        print('MethodType __init__')
+        self.__func__ = func
+        self.__self__ = obj
+
+    def __call__(self, *args, **kwargs):
+        func = self.__func__
+        obj = self.__self__
+        print('MethodType __call__')
+        return func(obj, *args, **kwargs)
+
+
+print('模擬 class method 如下 ...')
+
+class EmuClsMethod:
+    "Emulate PyClassMethod_Type() in Objects/funcobject.c"
+
+    def __init__(self, f):
+        print('呼叫 init : self=', self, 'f=', f)
+        self.f = f
+
+    def __get__(self, obj, cls=None):
+        print('呼叫 get : self=', self, 'obj=', obj, 'cls=', cls)
+        
+        # cls 看起來不會是 None，不懂這裡的用途?
+        if cls is None:
+            print('cls is None')
+            cls = type(obj)
+        
+        if hasattr(type(self.f), '__get__'):
+            print('self.f=', self.f, 'type(self.f)=', type(self.f), 'has attribute __get__')            
+            return self.f.__get__(cls, cls)
+        
+        return MethodType(self.f, cls)
+
+class Car:
+    
+    def check(self):
+        print('check() called')
+        pass
+        
+    check = EmuClsMethod(check) 
+
+# 呼叫 init : self= <__main__.EmuClsMethod object at ...> f= <function Car.check at ...>
+
+print(Car.check)
+# 呼叫 get : self= <__main__.EmuClsMethod object at ...> obj= None cls= <class '__main__.Car'>
+# self.f= <function Car.check at ...> type(self.f)= <class 'function'> has attribute __get__
+# <bound method Car.check of <class '__main__.Car'>>
+
+Car.check() # check() called
+
+print(vars(Car.check)) # {}
+print(Car.check.__func__) # <function Car.check at ...>
+print(Car.check.__self__) # <class '__main__.Car'>
+
+print('從物件呼叫 class method 如下 ...')
+    
+car = Car()
+
+print(car.check) # <bound method Car.check of <class '__main__.Car'>>
+
+print(car.check.__func__) # <function Car.check at ...>
+print(car.check.__self__) # <class '__main__.Car'>
+
+car.check() # check() called
+
+print('     ')
+print('連鎖 decorator 如下 ...')
+print('     ')
+
+class Car:
+    
+    @EmuClsMethod
+    @property    
+    def check(self):
+        return 20
+        pass
+    
+print(Car.check)    # 20
+print(Car().check)  # 20
+
+print('     ')
+print('連鎖 decorator 拆開如下 ...')
+print('     ')
+
+class Car:
+           
+    def check(self):
+        return 20
+        pass
+
+    check = property(check) #    
+    check = EmuClsMethod(check)    
+
+# 執行 check = EmuClsMethod(check) 的 log 如下
+# 呼叫 init : self= <__main__.EmuClsMethod object at ...> f= <property object at ...>
+
+print('Car.check')
+print(Car.check)
+
+# 呼叫 get : self= <__main__.EmuClsMethod object at ...> obj= None cls= <class '__main__.Car'>
+# self.f= <property object at ...> type(self.f)= <class 'property'> has attribute __get__
+
+print('Car().check') 
+print(Car().check)
+
+# 呼叫 get : self= <__main__.EmuClsMethod object at ...> obj= <__main__.Car object at ...> cls= <class '__main__.Car'>
+# self.f= <property object at ...> type(self.f)= <class 'property'> has attribute __get__
+# 20
+
+try:
+    Car.check()     # 'int' object is not callable 
+    Car().check()   # 'int' object is not callable 
+except:
+    pass
+    
+print('     ')
+print('若是顛倒 decorator ... 如下')
+print('     ')
+    
+class Car:
+    
+    @property
+    @EmuClsMethod    
+    def check(self):
+        return 20
+        pass
+    
+print(Car.check)    # 20
+try:
+    print(Car().check)  # 'EmuClsMethod' object is not callable
+    # 因為 property 的 __get__() 會回傳 self.fget(obj)，而 fget 為 EmuClsMethod 物件
+except:
+    pass
+
+print('     ')
+print('若是顛倒 decorator ... 拆開如下')
+print('     ')
+
+class Car:
+           
+    def check(self):
+        return 20
+        pass
+
+    check = EmuClsMethod(check)
+    check = property(check)
+
+# 呼叫 init : self= <__main__.EmuClsMethod object at ...> f= <function Car.check at ...>
+
+print(Car.check)    # <property object at 0x000001EF93206CF0>
+try:
+    print(Car().check)  # 'EmuClsMethod' object is not callable
+    # 因為 property 的 __get__() 會回傳 self.fget(obj)，而 fget 為 EmuClsMethod 物件
+except:
+    pass
+
+
+
+>>>>>>>>>>>>>>>>>>>
+
+# Class methods
+#與 static methods 不同, class methods 在呼叫 function 前將 class reference 添加到 argument list 前面。
+
+class F:
+    @classmethod
+    def f(cls, x):
+        return cls.__name__, x
+
+print(F.f(3)) # ('F', 3)
+
+print(F().f(3)) # ('F', 3)
+
+print(F())
+
+# class method 的用途在於當我們的 method 只需要 class reference 而不需要特定 instance 的資料。一個 class methods 的用途為建立 alternate class constructor。舉例來說，classmethod dict.fromkeys() 從 key 的 list 建立一個新的 dictionary。Python 程式如下
+
+class Dict(dict):
+    @classmethod
+    def fromkeys(cls, iterable, value=None):
+        "Emulate dict_fromkeys() in Objects/dictobject.c"
+        print(iterable)
+        d = cls()
+        for key in iterable:
+            d[key] = value
+        return d
+
+d = Dict.fromkeys('abracadabra')
+print(type(d) is Dict) # True
+print(d) #{'a': None, 'b': None, 'r': None, 'c': None, 'd': None}
+
+# 使用 non-data descriptor protocol，Python 版的 classmethod() 如下:
+
+class ClassMethod:
+    "Emulate PyClassMethod_Type() in Objects/funcobject.c"
+
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, cls=None):
+        if cls is None:
+            cls = type(obj)
+        if hasattr(type(self.f), '__get__'):
+            return self.f.__get__(cls, cls)
+        return MethodType(self.f, cls)
+
+# Python 3.9 加入程式 hasattr(type(self.f), '__get__') 讓 classmethod 可以支援 chain decorator，舉例來說，@classmethod 與 @property 可以同時裝飾方法:
+
+class G:
+    @classmethod
+    @property
+    def __doc__(cls):
+        return f'A doc for {cls.__name__!r}'
+
+G.__doc__
+# "A doc for 'G'"
+
+<<<<<<<<<<<<<<<<<
+
+# Functions 是存在 class dictionaries 當呼叫時會被轉為 method，Method 與一般 function 差異在於 object instance 會被添加到其他參數中，照慣例被命名為 self。
+
+# Methods 可以使用 types.MethodType 手動建立:
+
+class MethodType:
+    "Emulate PyMethod_Type in Objects/classobject.c"
+
+    def __init__(self, func, obj):
+        self.__func__ = func
+        self.__self__ = obj
+
+    def __call__(self, *args, **kwargs):
+        func = self.__func__
+        obj = self.__self__
+        return func(obj, *args, **kwargs)
+
+# To support automatic creation of methods, functions include the __get__() method for binding methods during attribute access. This means that functions are non-data descriptors that return bound methods during dotted lookup from an instance. Here’s how it works:
+
+# 重點 : 
+# 為了支援自動建立 method，function 有實作 __get__() method，在 attribute access 時 bind method。這表示 function 為 non-data descriptor 在 instance 的 dotted lookup 時回傳 bound method
+
+class Function:
+    ...
+
+    def __get__(self, obj, objtype=None):
+        "Simulate func_descr_get() in Objects/funcobject.c"
+        if obj is None:
+            return self
+        return MethodType(self, obj)
+
+
+class D:
+    def f(self, x):
+         return x
+
+print(D.f.__qualname__) #'D.f'
+
+# 透過 class dictionary 存取 function 時，因為 obj 為 None，所以 __get__() 僅回傳 function object:
+
+print(D.__dict__['f'])  # <function D.f at 0x00C45070>
+print(D.f)              # <function D.f at 0x00C45070>
+
+# 有意思的是當透過物件 dotted access 存取時，會呼叫 __get__() 並回傳 bound method object:
+
+
+d = D()
+print(d.f) # <bound method D.f of <__main__.D object at 0x00B18C90>>
+
+# 內部裡，bound method 儲存底下的 function 與 bound instance:
+
+print(d.f.__func__) # <function D.f at 0x00C45070>
+print(d.f.__self__) # <__main__.D object at 0x1012e1f98>
+
+
+
+<<<<<<<<<<
+
+
+class Charateristic:
+    
+    def __init__(self):        
+        pass
+    
+    def __set_name__(self, owner, name):        
+        self.private_name = '_' + name
+        self.public_name = name
+
+    def __get__(self, obj, objtype=None):
+        print('__get__ self=', self, 'obj=', obj, 'objtype=', objtype)
+        value = getattr(obj, self.private_name)        
+        return value
+
+    def __set__(self, obj, value):
+        print('__get__ self=', self, 'obj=', obj, 'value=', value)    
+        setattr(obj, self.private_name, value) # 在這裡設定 obj._age = 30, obj._height = 176
+
+class Owner:
+
+    age = Charateristic()                
+    height = Charateristic()
+    
+    def __init__(self, age, height):
+        self.age = age 
+        self.height = height
+
+me = Owner(30, 176)        
+print(vars(me))
+# {'_age': 30, '_height': 176}
+
+# attribute access 首先是找 object 的 dictionary
+try:
+    print(me.__dict__['age']) #KeyError: 'age'
+except:
+    pass
+    
+# 接著找 type(a).__dict__['x']
+print(type(me).__dict__['age']) # <__main__.Charateristic object at 0x000001265B67BCD0>
+
+# 再來如果 looked-up value 是定義 descriptor 方法的物件如上，則 python 會覆寫預設的行為並呼叫 descriptor method 取代
+
+# properties, methods, static methods, class methods, super() 都是運用 descriptor
+# 實作__set__() 或 __delete__() 稱為 data descriptor
+# 僅實作 __get__() 稱為 non data descriptor
+
+# descriptor 可以使用 desc.__get__(obj) 或 desc.__get__(None, cls) 直接呼叫
+# 但較常見的做法還是透過 attribute access 自動呼叫
+
+# 如果 instanct dict 和 data descriptor 有相同的 name，則 data descriptor 有優先權
+# 如果 instanct dict 和 non data descriptor 有相同的 name，則 dictionary entry 有優先權
+# 解釋如下
+
+# data descriptor 
+class A:
+    
+    def __get__(self, obj, objtype=None):        
+        print('get from A')
+
+    def __set__(self, obj, value):        
+        print('set from A')
+
+# non-data descriptor        
+class B:
+        
+    def __get__(self, obj, objtype=None):        
+        print('get from B')
+
+class C:
+    
+    a = A() 
+    b = B()
+
+    def __getattr__(self, name):        
+        return name
+
+c = C()
+
+# 以下分為幾個部分
+# 1. 從物件存取 descriptor
+# 2. 從類別存取 descriptor
+
+#        
+# ☆ ☆ ☆ ☆ ☆ ☆ 1. 從物件存取 descriptor ☆ ☆ ☆ ☆ ☆ ☆  
+#
+# 當存取物件 access attribute 時，python 會自動呼叫 __getattribute__(self, name)，
+# __getattribute__() 會依序呼叫 data descriptor > instance variable > non-data descriptor > class variable > 
+# 最後拋出 AttributeError，程式如下
+
+def find_name_in_mro(cls, name, default):
+    "Emulate _PyType_Lookup() in Objects/typeobject.c"    
+    for base in cls.__mro__:        
+        if name in vars(base):
+            print('vars(base)=', vars(base))
+            return vars(base)[name]
+    return default
+
+def object_getattribute(obj, name):
+    "模擬 PyObject_GenericGetAttr() in Objects/object.c"
+    null = object()
+    objtype = type(obj)    
+    cls_var = find_name_in_mro(objtype, name, null)
+    print('cls_var=', cls_var) # <__main__.A object at 0x00000233D89D7C10>
+    
+    # 先嘗試取得 descriptor 的 __get__()，此例為回傳 <function A.__get__ at ...>
+    descr_get = getattr(type(cls_var), '__get__', null)
+    
+    # getattr(object, name default) : 回傳 object 的 named attribute 的值
+        
+    if descr_get is not null:
+        if (hasattr(type(cls_var), '__set__')
+            or hasattr(type(cls_var), '__delete__')):
+            return descr_get(cls_var, obj, objtype)     # data descriptor
+    if hasattr(obj, '__dict__') and name in vars(obj):
+        return vars(obj)[name]                          # instance variable
+    if descr_get is not null:
+        return descr_get(cls_var, obj, objtype)         # non-data descriptor
+    if cls_var is not null:
+        return cls_var                                  # class variable
+    raise AttributeError(name)
+    
+object_getattribute(c, 'a')
+
+# 我們可以看到如果 attribute 找不到的話，會回傳 AttributeError，
+# 但實際上 getattribute() 的呼叫被包在一個 helper 方法如下，但因為 python 的 dot operator 跟 getattr() 方法會負責在 getattribute() 回傳 AttributeError 時 會呼叫 getattr() 
+
+def getattr_hook(obj, name):
+    "Emulate slot_tp_getattr_hook() in Objects/typeobject.c"
+    try:
+        return obj.__getattribute__(name)
+    except AttributeError:
+        if not hasattr(type(obj), '__getattr__'):
+            raise
+    return type(obj).__getattr__(obj, name)             # __getattr__
+
+# ☆ ☆ ☆ ☆ ☆ ☆
+    
+
+
+c.a # get from A
+c.b # get from B
+
+print(vars(c)) # {}
+
+c.a = 0 # set from A
+# data descriptor 有最高優先權
+
+print(vars(c)) # {}
+
+print(c.a) # get from A
+# data descriptor 有最高優先權
+
+c.b = 0 
+# 因為 B 是 non-data descriptor 沒有 __set__() 方法，instance c 會重新 assign 一個 instance variable b 值為 0
+# 證明 instance variable > non-data descriptor
+
+print(c.b) # 0
+# 不會再呼叫 B 的 __get__() 方法
+
+# 當 obj.x lookup 時在 instance __dict__ 外找到一個 descriptor，則 __get__() 的呼叫規則，會視 obj 為 object, class, 或 instance of super 而有所不同
+
+print(c.test) # test
+# 因為我們有定義 __getattr__()，所以 __getattribute__ 會呼叫 __getattr__()，反之會傳出 AttributeError
+
+
+#        
+# ☆ ☆ ☆ ☆ ☆ ☆ 2. 從物件存取 descriptor ☆ ☆ ☆ ☆ ☆ ☆  
+#
+# A.x 使用 type.__getattribute__().與 object.__getattribute__() 相似除了 instance dictionary lookup 替換為搜尋 class 的 method resolution order. 如果有找到 descriptor，則喚起 desc.__get__(None, A).
+
+C.a # get from A
+
+#        
+# ☆ ☆ ☆ ☆ ☆ ☆ 3. 從super()存取 descriptor ☆ ☆ ☆ ☆ ☆ ☆  
+#
+# super 的 dotted lookup 邏輯，在 super() 回傳物件的 __getattribute__() 方法
+# 若是如 super(A, obj).m 會找尋 obj.__class__.__mro__ 找到緊鄰 A 的 base class B，並回傳 B.__dict__['m'].__get__(obj, A)
+
+#
+# ☆ ☆ ☆ ☆ ☆ ☆ invocation logic 總結 ☆ ☆ ☆ ☆ ☆ ☆ 
+#
+# descriptor 是被 __getattribute__() 方法 invoke
+# 類別從 object, type, super() 繼承 __getattribute__ (?)
+# 覆寫 __getattribute__() 方法會阻止 python 自動呼叫 descriptor，因為 descriptor 邏輯都在此方法
+# object.__getattribute__() 與 type.__getattribute__() 會以不同的方式呼叫 __get__()。前者包含 instance 或是 class，後者是傳入 None 並永遠包含 class。
+# data descriptor 的優先權一定在 instance dictionary 之前
+# non-data descriptor 有機會被 instance dictionary 覆寫
+
+
+# 有時候 descriptor 需要知道他被指派到哪個 class variable name。當建立一個新的 class，'type' 這個 metaclass 會檢視這個新 class 的 dictionary。如果有找到 descriptors 且他們有定義 __set_name__(), 則以兩個參數呼叫此 method，owner 為使用 descriptor 的 class, 而 name 為 descriptor 被指派到的 class variable。
+
+# 實作細節在 Objects/typeobject.c 的 type_new() 與 set_names()
+
+# 因為 type.__new__() 是在建立 class 時呼叫，所以如果是之後才加到 class 的 descriptor 是不會呼叫 __set_name__() 的，需手動呼叫
+
+# descriptor 用途很廣，包含 Properties、bound methods、static methods、class methods、__slots__ 背後都是使用 descriptor protocol
+ 
+ <<<<<<<<<<<<
+ 
+ 
+ # Managed attributes / 管理屬性
+# descriptors 一個常用的用途是在管理存取 instance 資料。一個 descriptor 指派到 public attribute 在 class dictionary 中，而實際的資料是儲存在 instance dictionary 中的 private attribute。當 public attribute 存取時，descriptor 的 __get__() and __set__() methods 會觸發
+
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+class LoggedAgeAccess:
+    
+    def __init__(self):
+        print('init called')
+    
+    def __get__(self, obj, objtype=None):
+        value = obj._age
+        logging.info('Accessing %r giving %r', 'age', value)
+        return value
+
+    def __set__(self, obj, value):
+        logging.info('Updating %r to %r', 'age', value)
+        obj._age = value
+
+class Person:
+    
+    gender = ''
+    age = LoggedAgeAccess()             # Descriptor instance
+
+    def __init__(self, name, age):
+        self.name = name                # Regular instance attribute
+        self.age = age                  # 呼叫 __set__()
+
+    def birthday(self):
+        self.age += 1                   # 同時呼叫 __get__() / __set__()
+        
+try:
+    print(Person.age)
+    # AttributeError: 'NoneType' object has no attribute '_age'
+    # 因為傳入 __get__ 的 obj 是 None， None 沒有 _age 
+except:
+    pass
+
+print(Person.__dict__)
+#{
+#    '__module__': '__main__', 
+#    'gender': ''   
+#    'age': <__main__.LoggedAgeAccess object at 0x000001C540EEF7F0>, 
+#    '__init__': <function Person.__init__ at 0x000001C5411D9240>, 
+#    'birthday': <function Person.birthday at 0x000001C5411D92D0>, 
+#    '__dict__': <attribute '__dict__' of 'Person' objects>, 
+#    '__weakref__': <attribute '__weakref__' of 'Person' objects>, 
+#    '__doc__': None
+#}
+        
+mary = Person('Mary M', 30)         
+
+# mary 的 instance dict 如下，實際資料存在 _age
+print(vars(mary))                          
+print(mary.__dict__) # 等同 vars(mary)
+# {'name': 'Mary M', '_age': 30}
+  
+# 客製化 name #
+# 當 class 建立時，type.__new__() 會檢視 class variables 並 callback 有 __set_name__() hook 的 class variables
+# class A:
+#     x = C() # 自動呼叫 x.__set_name__(A, 'x')
+
+class LoggedAccess:
+
+    def __set_name__(self, owner, name):
+        print('self=', self, 'owner=', owner, 'name=', name)
+        self.public_name = name
+        self.private_name = '_' + name
+        print(self.private_name)
+
+    def __get__(self, obj, objtype=None):
+        value = getattr(obj, self.private_name)
+        logging.info('Accessing %r giving %r', self.public_name, value)
+        return value
+
+    def __set__(self, obj, value):
+        logging.info('Updating %r to %r', self.public_name, value)
+        setattr(obj, self.private_name, value)
+
+class Person:
+
+    name = LoggedAccess()                # First descriptor instance
+    age = LoggedAccess()                 # Second descriptor instance
+    height = 100
+    
+    def __init__(self, name, age):
+        self.name = name                 # Calls the first descriptor
+        self.age = age                   # Calls the second descriptor
+
+    def birthday(self):
+        self.age += 1  
+
+# self= <__main__.LoggedAccess object at 0x000001D7127B32B0> owner= <class '__main__.Person'> name= name
+# self= <__main__.LoggedAccess object at 0x000001D7127B31F0> owner= <class '__main__.Person'> name= age        
+        
+print(vars(LoggedAccess))
+#{
+#    '__module__'   : '__main__', 
+#    '__set_name__' : <function LoggedAccess.__set_name__ at 0x0000027CAAECDA20>, 
+#    '__get__'      : <function LoggedAccess.__get__ at 0x0000027CAAECDAB0>, 
+#    '__set__'      : <function LoggedAccess.__set__ at 0x0000027CAAECDB40>, 
+#    '__dict__'     : <attribute '__dict__' of 'LoggedAccess' objects>, 
+#    '__weakref__'  : <attribute '__weakref__' of 'LoggedAccess' objects>, 
+#    '__doc__'      : None
+#}
+
+print(vars(Person))
+
+#{
+#    '__module__'   : '__main__', 
+#    'name'         : <__main__.LoggedAccess object at 0x000001D5731F32B0>, 
+#    'age'          : <__main__.LoggedAccess object at 0x000001D5731F31F0>, 
+#    'height'       : 100, 
+#    '__init__'     : <function Person.__init__ at 0x000001D5734C1BD0>, 
+#    'birthday'     : <function Person.birthday at 0x000001D5734C1C60>, 
+#    '__dict__'     : <attribute '__dict__' of 'Person' objects>, 
+#    '__weakref__'  : <attribute '__weakref__' of 'Person' objects>, 
+#    '__doc__'      : None
+#}
+
+print(vars(Person)['name']) # <__main__.LoggedAccess object at 0x000001C0691632B0>
+print(vars(vars(Person)['name']))
+# {'public_name': 'name', 'private_name': '_name'}
+
+p1 = Person('Bia', 20)
+print(vars(p1))
+# {'_name': 'Bia', '_age': 20}
+
+# descriptor 的 __set_name__() 方法有兩個情境
+# 1. descriptor 需要知道他的 owner class
+# 2. descriptor 需要知道自己是被 assign 到 owner class 的哪個 class variable
+
+class Slave:
+    
+    def __init__(self):        
+        pass
+    
+    def __set_name__(self, owner, name):
+        print(owner.__dict__)
+        self.owner_class = owner
+        self.owner_var_name = name
+
+    def __get__(self, obj, objtype=None):
+        value = getattr(obj, self.private_name)        
+        return value
+
+    def __set__(self, obj, value):        
+        setattr(obj, self.private_name, value)
+
+class Owner:
+
+    q = Slave()                # First descriptor instance   
+    
+    def __init__(self, name, age):
+        self.q = name                 # Calls the first descriptor
+
+print(vars(vars(Owner)['q']))        
+# {'owner_class': <class '__main__.Owner'>, 'owner_var_name': 'q'}
+# 上述的兩個情境
+
+
+# descriptor 只有作為 class variable 時有效，作為 instance variable 時無效
+# descriptor 的主要動機是提供一個 hook 允許物件儲存在 class variable 中，以控制在 attribute lookup 發生的事
+# 傳統上，calling class 控制 lookup 時會發生的事，但 descriptor 反轉此事，
+
+
+       <<<<<<<
+       
+       # abstract class 就是有 abstract method 的 class，這些 abstract method 被宣告但是沒被實作
+# 簡單來說，可以將 abstract class 理解成是一個 subclass 必須要有的 framework
+
+from abc import ABC, abstractmethod
+
+class Employee(ABC):
+
+    @abstractmethod
+    def arrive_at_work(self):
+        pass
+        
+# 注意這裡的 abstract method 不應該有實作，所以僅為 pass
+
+class Manager(Employee):
+    
+    def show_up(self):
+        print("I'm here")
+    
+    # 注意這裡繼承 abc 的類別必須覆寫 abstractmethod
+    def arrive_at_work(self):
+        print('Manager here')
+        pass
+        
+glasscock = Manager()
+
+class Supervisor(Employee):
+        
+    # 不同的子類別可以有不同的 abstractmethod 實作方式
+    def arrive_at_work(self):
+        print('Supervisor here')
+        pass
+
+#        
+# 在 abstract method 可以定義參數
+#
+
+class Employee(ABC):
+    
+    # 新增參數
+    @abstractmethod
+    def arrive_at_work(self, time):
+        pass        
+
+class Manager(Employee):
+    
+    def show_up(self):
+        print("I'm here")
+    
+    # 覆寫 abstractmethod 同樣需要參數
+    def arrive_at_work(self, time):
+        print('Manager here at ', time)
+        pass
+        
+glasscock = Manager()
+glasscock.arrive_at_work('08:00')
+
+class Supervisor(Employee):
+        
+    # 注意 ! 子類別覆寫 abstractmethod 時，可以有額外的參數
+    def arrive_at_work(self, time, viechle):
+        print('Supervisor here at time', time, 'by', viechle)
+        pass
+        
+jim = Supervisor()
+jim.arrive_at_work('09:00', 'Tesla')
+        
