@@ -1,4 +1,10 @@
-http://www.calnewport.com/blog/2011/12/23/flow-is-the-opiate-of-the-medicore-advice-on-getting-better-from-an-accomplished-piano-player/
+https://machinelearningmastery.com/a-gentle-introduction-to-sigmoid-function/
+https://en.wikipedia.org/wiki/Sigmoid_function
+https://byjus.com/maths/value-of-e/
+https://plus.maths.org/content/where-does-e-come-and-what-does-it-do-0
+
+
+nhttp://www.calnewport.com/blog/2011/12/23/flow-is-the-opiate-of-the-medicore-advice-on-getting-better-from-an-accomplished-piano-player/
 https://every-layout.dev/
 https://bair.berkeley.edu/blog/2019/05/28/end-to-end/
 http://stevehanov.ca/blog/?id=132
