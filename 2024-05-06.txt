@@ -1,1 +1,6 @@
 
+zencode 
+
+Tools > C# > Coding Style > namespace 減少縮排, 改成 file scope
+
+ctor 建構子快捷鍵
